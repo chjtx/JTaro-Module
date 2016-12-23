@@ -1,0 +1,28 @@
+{
+  "name": "jtaro-module",
+  "version": "1.0.0",
+  "description": "I don't know how to describe",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chjtx/JTaro-Module.git"
+  },
+  "keywords": [
+    "jtaro-module"
+  ],
+  "author": "BarZu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chjtx/JTaro-Module/issues"
+  },
+  "homepage": "https://github.com/chjtx/JTaro-Module#readme",
+  "devDependencies": {
+    "eslint": "^3.9.1",
+    "eslint-config-vue": "^2.0.0",
+    "eslint-plugin-vue": "^1.0.0",
+    "rollup": "^0.38.0"
+  }
+}
