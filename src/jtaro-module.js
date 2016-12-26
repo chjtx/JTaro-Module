@@ -14,14 +14,59 @@
  * 4) export default a
  * 5) export { abc as a }
  */
-function parseImport (text) {
-  var reg = /\bimport\s+.*(?=\n)/g
-  console.log(reg.exec(text))
-  return text
+function getImports (text) {
+  return text.match(/\bimport\s+.*(?=\n)/g)
+}
+
+function removeComment (text) {
+  var singleLine = /(?=\n|\r)\s*\/\/.*(\n|\r)/g
+  var multiLine = /\/\*[\s\S]*?\*\//g
+  return text.replace(singleLine, '').replace(multiLine, '')
+}
+
+function parseImport (arr) {
+  var newArr = []
+  var result
+  var path
+  for (var i = 0, l = arr.length; i < l; i++) {
+    result = /import\s+['"](.+)['"]/.exec(arr[i])
+    if (result) {
+      path = 'JTaroLoader.import(\'' + result[1] + '\', g)'
+    }
+    newArr.push(path)
+  }
+  return newArr
+}
+
+function mixHeader (loaders) {
+  return '(function (f) {\n' +
+    '  var count = ' + loaders.length + '\n' +
+    '  function g () { if (!--count) f() }\n  ' +
+    loaders.join('\n  ') +
+    '\n})(function () {\n'
+}
+
+function removeImport (a, f) {
+  for (var i = 0, l = a.length; i < l; i++) {
+    f = f.replace(new RegExp(a[i] + '(\n|\r)+'), '')
+  }
+  return f
 }
 
 module.exports = function (file, name) {
-  file = parseImport(file)
-  file = file.replace(/\bexport\s+default\b/, 'window.JTaroModules[\'' + name + '\'] =')
+  // 副本，去除注释
+  var copy = removeComment(file)
+  // 提取import
+  var imports = getImports(copy)
+
+  if (imports) {
+    // 转换成JTaroLoader.import
+    var loaders = parseImport(imports)
+    // 头部
+    var header = mixHeader(loaders)
+    // 去掉已转换的import
+    file = header + removeImport(imports, file) + '})'
+  }
+
   return file
 }

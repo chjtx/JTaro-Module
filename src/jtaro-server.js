@@ -47,8 +47,8 @@ http.createServer((req, res) => {
           res.writeHead(500, { 'Content-Type': 'text/plain' })
           res.end(err)
         } else {
-          if (parseQuery.jtaro_module) {
-            file = jtaroModule(file, parseQuery.jtaro_module)
+          if (ext === 'js') {
+            file = jtaroModule(file)
           }
 
           res.writeHead(200, { 'Content-Type': contentType })
