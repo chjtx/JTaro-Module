@@ -19,9 +19,9 @@ function getImports (text) {
 }
 
 function removeComment (text) {
-  var singleLine = /(?=\n|\r)\s*\/\/.*(\n|\r)/g
   var multiLine = /\/\*[\s\S]*?\*\//g
-  return text.replace(singleLine, '').replace(multiLine, '')
+  var singleLine = /\/\/.*(\n|\r)/g
+  return text.replace(multiLine, '').replace(singleLine, '')
 }
 
 function parseImport (arr) {

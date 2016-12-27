@@ -14,21 +14,33 @@
         return p.substr(0, p.lastIndexOf('/'))
       },
       resolve: function (p) {
-        var d = this.dirname(document.currentScript.src).replace(basePath, '')
-        p = p.replace(/(\.\.\/)|(\.\/)/g, function (match, up) {
-          if (up) {
-            d = d.substr(0, d.lastIndexOf('/'))
-          }
-          return ''
-        })
-        return '.' + d + '/' + p
+        var d = this.dirname(document.currentScript.src)
+        var extra = []
+
+        // currentScript在index.html同级或子级
+        if (d.lastIndexOf(basePath) > -1) {
+          d = d.replace(basePath, '')
+          p = p.replace(/(\.\.\/)|(\.\/)/g, function (match, up) {
+            if (up) {
+              if (!d) extra.push('..')
+              d = d.substr(0, d.lastIndexOf('/'))
+            }
+            return ''
+          })
+          return (extra.length ? extra.join('/') : '.') + d + '/' + p
+
+        // currentScript在index.html父级
+        } else {
+          d = basePath.replace(d, '')
+          return d.replace(/\/[^/]+/g, '../') + p
+        }
       }
     },
     // 引入模块
     import: function (path, callback) {
       var src = this.path.resolve(path)
       var script
-      if (!document.head.querySelector('script[src="' + src + '"]')) {
+      if (!document.querySelector('script[src="' + src + '"]')) {
         script = document.createElement('script')
         script.src = src
         script.onload = function () {
@@ -40,19 +52,6 @@
       } else if (typeof callback === 'function') {
         callback()
       }
-    }
-  }
-
-  // 引入入口文件
-  var bodyScripts = document.body.getElementsByTagName('script')
-  var mainScript
-  var datasetMain
-  for (var i = 0, l = bodyScripts.length; i < l; i++) {
-    datasetMain = bodyScripts[i].dataset.main
-    if (datasetMain && ~bodyScripts[i].src.indexOf('jtaro-client')) {
-      mainScript = document.createElement('script')
-      mainScript.src = datasetMain
-      document.head.appendChild(mainScript)
     }
   }
 

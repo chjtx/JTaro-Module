@@ -1,2 +1,2 @@
-JTaroLoader.import('./x/x.js')
+import './main.js'
 window.b = 'b'
