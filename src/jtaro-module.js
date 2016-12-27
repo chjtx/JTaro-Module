@@ -15,12 +15,12 @@
  * 5) export { abc as a }
  */
 function getImports (text) {
-  return text.match(/\bimport\s+.*(?=\n)/g)
+  return text.match(/\bimport\s+.*(?=[\r\n]+)/g)
 }
 
 function removeComment (text) {
   var multiLine = /\/\*[\s\S]*?\*\//g
-  var singleLine = /\/\/.*(\n|\r)/g
+  var singleLine = /\/\/.*[\r\n]+/g
   return text.replace(multiLine, '').replace(singleLine, '')
 }
 
@@ -48,13 +48,14 @@ function mixHeader (loaders) {
 
 function removeImport (a, f) {
   for (var i = 0, l = a.length; i < l; i++) {
-    f = f.replace(new RegExp(a[i] + '(\n|\r)+'), '')
+    f = f.replace(new RegExp(a[i] + '[\r\n]+'), '')
   }
   return f
 }
 
 module.exports = function (file, name) {
   // 副本，去除注释
+  // TODO 符合注释特征的字符串不能删掉
   var copy = removeComment(file)
   // 提取import
   var imports = getImports(copy)

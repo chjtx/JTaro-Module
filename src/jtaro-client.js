@@ -13,27 +13,39 @@
       dirname: function (p) {
         return p.substr(0, p.lastIndexOf('/'))
       },
+      relative: function (fromWhere, toWhere) {
+        var f = fromWhere.replace(window.location.origin, '')
+        var t = toWhere.replace(window.location.origin, '')
+        var reg = /^\/[^/]+/
+        var fmatch = reg.exec(f)
+        var tmatch = reg.exec(t)
+        while (fmatch && tmatch && fmatch[0] === tmatch[0]) {
+          f = f.replace(reg, '')
+          t = t.replace(reg, '')
+          fmatch = reg.exec(f)
+          tmatch = reg.exec(t)
+        }
+        var length = f.split('/').length
+        var extra = []
+        while (--length) {
+          extra.push('..')
+        }
+        return extra.join('/') + t
+      },
       resolve: function (p) {
         var d = this.dirname(document.currentScript.src)
-        var extra = []
-
-        // currentScript在index.html同级或子级
-        if (d.lastIndexOf(basePath) > -1) {
-          d = d.replace(basePath, '')
-          p = p.replace(/(\.\.\/)|(\.\/)/g, function (match, up) {
-            if (up) {
-              if (!d) extra.push('..')
-              d = d.substr(0, d.lastIndexOf('/'))
-            }
-            return ''
-          })
-          return (extra.length ? extra.join('/') : '.') + d + '/' + p
-
-        // currentScript在index.html父级
-        } else {
-          d = basePath.replace(d, '')
-          return d.replace(/\/[^/]+/g, '../') + p
+        var path
+        p = p.replace(/(\.\.\/)|(\.\/)/g, function (match, up) {
+          if (up) {
+            d = d.substr(0, d.lastIndexOf('/'))
+          }
+          return ''
+        })
+        path = (d + '/' + p).replace(basePath, '.')
+        if (path.indexOf(window.location.origin) > -1) {
+          path = this.relative(basePath, path)
         }
+        return path
       }
     },
     // 引入模块
