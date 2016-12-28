@@ -35,15 +35,23 @@
       resolve: function (p) {
         var d = this.dirname(document.currentScript.src)
         var path
-        p = p.replace(/(\.\.\/)|(\.\/)/g, function (match, up) {
-          if (up) {
-            d = d.substr(0, d.lastIndexOf('/'))
+
+        // 支持http/https请求
+        if (/^http/.test(p)) {
+          path = p
+
+        // 相对路径请求
+        } else {
+          p = p.replace(/(\.\.\/)|(\.\/)/g, function (match, up) {
+            if (up) {
+              d = d.substr(0, d.lastIndexOf('/'))
+            }
+            return ''
+          })
+          path = (d + '/' + p).replace(basePath, '.')
+          if (path.indexOf(window.location.origin) > -1) {
+            path = this.relative(basePath, path)
           }
-          return ''
-        })
-        path = (d + '/' + p).replace(basePath, '.')
-        if (path.indexOf(window.location.origin) > -1) {
-          path = this.relative(basePath, path)
         }
         return path
       }

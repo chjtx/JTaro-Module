@@ -8,3 +8,4 @@
 - 所有模块路径都是相对当前引用文件，入口文件main.js相对于index.html，main.js引入a.js，a相对main，a.js引入b.js，b相对a
 - 一个模块多次引入相同模块可能会出错
 - a.js引入b.js，b.js引入a.js这类循环引入不会重复加载，但代码可能不会按预期的那样执行
+- import必须独立成行

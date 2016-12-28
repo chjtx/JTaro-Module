@@ -15,13 +15,7 @@
  * 5) export { abc as a }
  */
 function getImports (text) {
-  return text.match(/\bimport\s+.*(?=[\r\n]+)/g)
-}
-
-function removeComment (text) {
-  var multiLine = /\/\*[\s\S]*?\*\//g
-  var singleLine = /\/\/.*[\r\n]+/g
-  return text.replace(multiLine, '').replace(singleLine, '')
+  return text.match(/^\s*import\s+.*['"]$/mg)
 }
 
 function parseImport (arr) {
@@ -54,11 +48,8 @@ function removeImport (a, f) {
 }
 
 module.exports = function (file, name) {
-  // 副本，去除注释
-  // TODO 符合注释特征的字符串不能删掉
-  var copy = removeComment(file)
   // 提取import
-  var imports = getImports(copy)
+  var imports = getImports(file)
 
   if (imports) {
     // 转换成JTaroLoader.import
