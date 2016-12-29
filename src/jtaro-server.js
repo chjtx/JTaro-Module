@@ -1,6 +1,6 @@
 var fs = require('fs')
 var path = require('path')
-var querystring = require('querystring')
+// var querystring = require('querystring')
 var http = require('http')
 var url = require('url')
 var jtaroModule = require('./jtaro-module.js')
@@ -29,8 +29,8 @@ var mime = {
 http.createServer((req, res) => {
   var parseURL = url.parse(req.url)
   var pathname = parseURL.pathname
-  var query = parseURL.query
-  var parseQuery = querystring.parse(query)
+  // var query = parseURL.query
+  // var parseQuery = querystring.parse(query)
   var ext = path.extname(pathname)
   var realPath = '.' + pathname
   ext = ext ? ext.slice(1) : 'unknown'
@@ -48,7 +48,7 @@ http.createServer((req, res) => {
           res.end(err)
         } else {
           if (ext === 'js') {
-            file = jtaroModule(file)
+            file = jtaroModule(file, req.url)
           }
 
           res.writeHead(200, { 'Content-Type': contentType })
