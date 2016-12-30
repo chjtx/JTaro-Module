@@ -1,10 +1,12 @@
-import './x/x.js' // x.js
+import { x as bb } from './x/x.js' // x.js
 import './b.js'
-import '../build/main.js'
+import 'main.js'
 
 // import 'abc.js'
 /* import 'bbb.js'
 //*/
+
+console.log(bb)
 
 var a = 'a' // import 'abc.js'
 var aaa = 'aaa'

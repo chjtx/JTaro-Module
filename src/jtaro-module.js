@@ -26,26 +26,80 @@ function removeComment (text) {
   return text.replace(/\/\*[\s\S]*?\*\//g, '')
 }
 
-function parseImport (arr) {
+function resolvePath (p, d) {
+  d = d.substr(0, d.lastIndexOf('/'))
+  p = p.replace(/(\.\.\/)|(\.\/)/g, function (match, up) {
+    if (up) {
+      d = d.substr(0, d.lastIndexOf('/'))
+    }
+    return ''
+  })
+  return d + '/' + p
+}
+
+function parseImport (arr, name) {
   var newArr = []
-  var result
+  var regNormal = /import +['"](.+)['"]/
+  var regBracket = /import +\{([^}]+)\} +from +['"](.+)['"]/
+  var varArr = []
   var path
+  var temp
+  var variables
   for (var i = 0, l = arr.length; i < l; i++) {
-    result = /import\s+['"](.+)['"]/.exec(arr[i])
-    if (result) {
-      path = 'JTaroLoader.import(\'' + result[1] + '\', g)'
+    // import '**.js'
+    if (regNormal.test(arr[i])) {
+      path = 'JTaroLoader.import(\'' + regNormal.exec(arr[i])[1] + '\', g)'
+    }
+    // import { ... } from '**.js'
+    if (regBracket.test(arr[i])) {
+      temp = regBracket.exec(arr[i])
+      variables = temp[1].trim().split(/ *, */)
+      variables.forEach(i => {
+        var a = i.split(/ +as +/)
+        varArr.push({
+          alias: a[1] || a[0],
+          name: resolvePath(temp[2], name),
+          variable: a[0]
+        })
+      })
+      path = 'JTaroLoader.import(\'' + temp[2] + '\', g)'
     }
     newArr.push(path)
   }
-  return newArr
+  return {
+    imports: newArr,
+    exports: varArr
+  }
+}
+
+function joinImports (exports) {
+  var s = ''
+  exports.forEach((item, index) => {
+    s += 'JTaroModules[\'' + item.name + '\'].' + item.variable
+    if (index !== exports.length - 1) {
+      s += ', '
+    }
+  })
+  return s
+}
+
+function joinVariables (exports) {
+  var s = ''
+  exports.forEach((item, index) => {
+    s += item.alias
+    if (index !== exports.length - 1) {
+      s += ', '
+    }
+  })
+  return s
 }
 
 function mixHeader (loaders, name) {
   return '(function (f) {\n' +
-    '  var count = ' + loaders.length + '\n' +
-    '  function g () { if (!--count) f() }\n  ' +
-    loaders.join('\n  ') +
-    '\n})(function () {\nJTaroModules[\'' + name + '\'] = {}\n\n'
+    '  var count = ' + loaders.imports.length + '\n' +
+    '  function g () { if (!--count) f(' + joinImports(loaders.exports) + ') }\n  ' +
+    loaders.imports.join('\n  ') +
+    '\n})(function (' + joinVariables(loaders.exports) + ') {\nJTaroModules[\'' + name + '\'] = {}\n\n'
 }
 
 function removeImport (a, f) {
@@ -123,7 +177,7 @@ module.exports = function (file, name) {
 
   if (imports) {
     // 转换成JTaroLoader.import
-    loaders = parseImport(imports)
+    loaders = parseImport(imports, name)
     // 头部
     header = mixHeader(loaders, name)
     // 去掉已转换的import
