@@ -4,7 +4,7 @@
  * import
  * 1) import { a, b, c } from './util.js'
  * 2) import { abc as a } from './util.js'
- * 3) import { a } from './util.js'
+ * 3) import a from './util.js'
  * 4) import './util.js'
  * 5) import * as a from './util.js'
  * export
@@ -41,6 +41,8 @@ function parseImport (arr, name) {
   var newArr = []
   var regNormal = /import +['"](.+)['"]/
   var regBracket = /import +\{([^}]+)\} +from +['"](.+)['"]/
+  var regDefault = /import +([^ ]+) +from +['"](.+)['"]/
+  var regAll = /import +\* +as +([^ ]+) +from +['"](.+)['"]/
   var varArr = []
   var path
   var temp
@@ -59,8 +61,28 @@ function parseImport (arr, name) {
         varArr.push({
           alias: a[1] || a[0],
           name: resolvePath(temp[2], name),
-          variable: a[0]
+          variable: '.' + a[0]
         })
+      })
+      path = 'JTaroLoader.import(\'' + temp[2] + '\', g)'
+    }
+    // import default from '**.js'
+    if (regDefault.test(arr[i])) {
+      temp = regDefault.exec(arr[i])
+      varArr.push({
+        alias: temp[1],
+        name: resolvePath(temp[2], name),
+        variable: '.default'
+      })
+      path = 'JTaroLoader.import(\'' + temp[2] + '\', g)'
+    }
+    // import * as a from '**.js'
+    if (regAll.test(arr[i])) {
+      temp = regAll.exec(arr[i])
+      varArr.push({
+        alias: temp[1],
+        name: resolvePath(temp[2], name),
+        variable: ''
       })
       path = 'JTaroLoader.import(\'' + temp[2] + '\', g)'
     }
@@ -73,14 +95,17 @@ function parseImport (arr, name) {
 }
 
 function joinImports (exports) {
-  var s = ''
+  if (!exports.length) {
+    return ''
+  }
+  var s = ', [\n    '
   exports.forEach((item, index) => {
-    s += 'JTaroModules[\'' + item.name + '\'].' + item.variable
+    s += 'JTaroModules[\'' + item.name + '\']' + item.variable
     if (index !== exports.length - 1) {
-      s += ', '
+      s += ',\n    '
     }
   })
-  return s
+  return s + '\n  ]'
 }
 
 function joinVariables (exports) {
@@ -94,17 +119,17 @@ function joinVariables (exports) {
   return s
 }
 
-function mixHeader (loaders, name) {
+function mixHeader (loaders) {
   return '(function (f) {\n' +
     '  var count = ' + loaders.imports.length + '\n' +
-    '  function g () { if (!--count) f(' + joinImports(loaders.exports) + ') }\n  ' +
+    '  function g () { if (!--count) f.apply(null' + joinImports(loaders.exports) + ') }\n  ' +
     loaders.imports.join('\n  ') +
-    '\n})(function (' + joinVariables(loaders.exports) + ') {\nJTaroModules[\'' + name + '\'] = {}\n\n'
+    '\n})(function (' + joinVariables(loaders.exports) + ') {\n\n'
 }
 
 function removeImport (a, f) {
   for (var i = 0, l = a.length; i < l; i++) {
-    f = f.replace(new RegExp(a[i] + '[\r\n]+'), '')
+    f = f.replace(new RegExp(a[i].replace('*', '\\*') + '[\r\n]+'), '')
   }
   return f
 }
@@ -179,7 +204,7 @@ module.exports = function (file, name) {
     // 转换成JTaroLoader.import
     loaders = parseImport(imports, name)
     // 头部
-    header = mixHeader(loaders, name)
+    header = mixHeader(loaders)
     // 去掉已转换的import
     file = header + removeImport(imports, file) + '})'
   }
@@ -189,8 +214,12 @@ module.exports = function (file, name) {
 
   if (exports) {
     exportMaps = getExportMaps(exports, name)
-    exportMaps.forEach(i => {
-      file = file.replace(i.source, i.replace)
+    exportMaps.forEach((item, index) => {
+      if (index === 0) {
+        file = file.replace(item.source, 'JTaroModules[\'' + name + '\'] = {}\n' + item.replace)
+      } else {
+        file = file.replace(item.source, item.replace)
+      }
     })
   }
 

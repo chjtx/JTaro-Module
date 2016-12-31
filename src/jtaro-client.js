@@ -1,10 +1,5 @@
 /* global */
 (function () {
-  // var basePath = (function (uri) {
-  //   uri = uri.split('#')[0].split('?')[0]
-  //   return uri.substr(0, uri.lastIndexOf('/'))
-  // })(document.baseURI)
-
   window.JTaroModules = {}
 
   var loader = {
@@ -13,25 +8,6 @@
       dirname: function (p) {
         return p.substr(0, p.lastIndexOf('/'))
       },
-      // relative: function (fromWhere, toWhere) {
-      //   var f = fromWhere.replace(window.location.origin, '')
-      //   var t = toWhere.replace(window.location.origin, '')
-      //   var reg = /^\/[^/]+/
-      //   var fmatch = reg.exec(f)
-      //   var tmatch = reg.exec(t)
-      //   while (fmatch && tmatch && fmatch[0] === tmatch[0]) {
-      //     f = f.replace(reg, '')
-      //     t = t.replace(reg, '')
-      //     fmatch = reg.exec(f)
-      //     tmatch = reg.exec(t)
-      //   }
-      //   var length = f.split('/').length
-      //   var extra = []
-      //   while (--length) {
-      //     extra.push('..')
-      //   }
-      //   return extra.join('/') + t
-      // },
       resolve: function (p) {
         var currentScript = document.currentScript.src
         var d = this.dirname(currentScript)
@@ -50,10 +26,6 @@
             return ''
           })
           path = (d + '/' + p)
-          // path = (d + '/' + p).replace(basePath, '.')
-          // if (path.indexOf(window.location.origin) > -1) {
-          //   path = this.relative(basePath, path)
-          // }
         }
         return {
           from: currentScript,
@@ -62,19 +34,25 @@
         }
       }
     },
-    // 引入模块
-    import: function (path, callback) {
-      var src = this.path.resolve(path)
-      var script
+    // 判断脚本是否存在
+    isExist: function (path) {
       var exist = false
       var scripts = document.getElementsByTagName('script')
       for (var i = 0, l = scripts.length; i < l; i++) {
-        if (scripts[i].src === src.path) {
+        if (scripts[i].src === path) {
           exist = true
           break
         }
       }
-      if (!exist) {
+      return exist
+    },
+    // 引入模块
+    import: function (path, callback) {
+      var me = this
+      var src = this.path.resolve(path)
+      var script
+
+      if (!me.isExist(src.path)) {
         script = document.createElement('script')
         script.src = src.src
         script.onload = function () {
@@ -84,7 +62,12 @@
           console.error('`JTaroLoader.import(\'' + src.src + '\', g)` load fail from ' + src.from)
         }
         setTimeout(function () {
-          document.head.appendChild(script)
+          // 防止多次引入同一模块
+          if (!me.isExist(src.path)) {
+            document.head.appendChild(script)
+          } else {
+            callback()
+          }
         }, 0)
       } else if (typeof callback === 'function') {
         callback()
