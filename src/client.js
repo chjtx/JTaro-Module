@@ -1,3 +1,4 @@
+/*! JTaro-Module client.js v0.0.1 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global */
 (function () {
   window.JTaroModules = {}

@@ -1,3 +1,4 @@
+/*! JTaro-Module parse.js v0.0.1 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /**
  * JTaro Module
  * 将含以下规则的import/export解释成ES5可执行代码
