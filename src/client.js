@@ -57,7 +57,7 @@
         script = document.createElement('script')
         script.src = src.src
         script.onload = function () {
-          if (typeof callback === 'function') callback()
+          if (typeof callback === 'function') callback(src)
         }
         script.onerror = function (e) {
           console.error('`JTaroLoader.import(\'' + src.src + '\', g)` load fail from ' + src.from)
@@ -67,11 +67,11 @@
           if (!me.isExist(src.path)) {
             document.head.appendChild(script)
           } else {
-            callback()
+            callback(src)
           }
         }, 0)
       } else if (typeof callback === 'function') {
-        callback()
+        callback(src)
       }
     }
   }
