@@ -18,7 +18,7 @@ var a5 = function () {
 
 // export { a, aa, aaa as a3, a5 } // asldfjasldfj
 export { a }
-  export var aa = 'aa'
+  export var aa = bbb
 export { aaa as a3 }
 export function aaaa () {
   return 'aaaa'

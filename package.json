@@ -1,7 +1,7 @@
 {
   "name": "jtaro-module",
-  "version": "1.0.0",
-  "description": "I don't know how to describe",
+  "version": "0.0.1",
+  "description": "Explain the ES6 module to Es5 syntax",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

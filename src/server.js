@@ -1,9 +1,9 @@
 var fs = require('fs')
 var path = require('path')
-// var querystring = require('querystring')
 var http = require('http')
 var url = require('url')
-var jtaroModule = require('./jtaro-module.js')
+var jtaroModule = require('./parse')
+var port = process.argv[2] || 3000
 
 var mime = {
   'css': 'text/css',
@@ -29,8 +29,6 @@ var mime = {
 http.createServer((req, res) => {
   var parseURL = url.parse(req.url)
   var pathname = parseURL.pathname
-  // var query = parseURL.query
-  // var parseQuery = querystring.parse(query)
   var ext = path.extname(pathname)
   var realPath = '.' + pathname
   ext = ext ? ext.slice(1) : 'unknown'
@@ -58,4 +56,6 @@ http.createServer((req, res) => {
       })
     }
   })
-}).listen(3000)
+}).listen(port)
+
+console.log('JTaro Module Server run on port: ' + port)
