@@ -1,18 +1,20 @@
 var utils = require('rollup-pluginutils')
+var path = require('path')
 
 module.exports = function (options) {
   options = options || {}
   var filter = utils.createFilter(options.include || ['**/*.html', '**/*.css'], options.exclude)
 
-  function path2id (path) {
-    return path.replace(process.cwd(), '').replace(/\/|\\/g, '_').replace(/\.[a-zA-Z]+$/, '')
+  function path2id (p) {
+    var root = path.resolve(process.cwd(), options.root || '')
+    return p.replace(root, '').replace(/\/|\\/g, '_').replace(/\.[a-zA-Z]+$/, '')
   }
 
-  function parseHtml (data, path) {
+  function parseHtml (data, p) {
     var reg = /<style>([\s\S]+)<\/style>/
     var styleText = reg.exec(data)
     var css = ''
-    var id = path2id(path)
+    var id = path2id(p)
 
     // 提取模板的<style>
     if (styleText) {

@@ -15,8 +15,8 @@ window.b = 'b';
 
 var bbb = { bbb: 'hahaha' };
 
-_$styleInject("jtaro_style_demos_a", "\n[jtaro_demos_a] h1 {color:red;}\n[jtaro_demos_a] div,\n[jtaro_demos_a] li {font-size: 16px;}\n");
-var tpl = "<div jtaro_demos_a >\r\n  <h1>HEllo JTaro Module !!!</h1>\r\n</div>";
+_$styleInject("jtaro_style_a", "\n[jtaro_a] h1 {color:red;}\n[jtaro_a] div,\n[jtaro_a] li {font-size: 16px;}\n[jtaro_a] {background:blue;}\n");
+var tpl = "<div jtaro_a >\r\n  <h1>HEllo JTaro Module !!!</h1>\r\n</div>";
 
 // import { x as bb } from './x/x.js' // x.js
 // import 'main.js'
@@ -53,7 +53,7 @@ var a$1 = Object.freeze({
 	default: a6
 });
 
-_$styleInject("jtaro_css_demos_a", "\nbody {\r\n  background: #ddd;\r\n}\n");
+_$styleInject("jtaro_css_a", "\nbody {\r\n  background: #ddd;\r\n}\n");
 
 // import txt from './123.txt'
 

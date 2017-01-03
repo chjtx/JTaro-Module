@@ -3,3 +3,4 @@
 !src/client.js
 !src/parse.js
 !src/server.js
+!src/rollup-plugin-jtaro-module.js

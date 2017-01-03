@@ -125,16 +125,17 @@
       })
     },
     importCss: function (result, callback) {
-      var id = 'jtaro_link' + this.path2id(result.src)
-      var link = document.getElementById(id)
-      if (!link) {
-        link = document.createElement('link')
-        link.id = id
-        link.rel = 'stylesheet'
-        link.href = result.src
-        document.head.appendChild(link)
-      }
-      callback(result)
+      var id = 'jtaro_css' + this.path2id(result.src)
+      this.ajax(result.src, function (data) {
+        var link = document.getElementById(id)
+        if (!link) {
+          link = document.createElement('style')
+          link.id = id
+          link.innerHTML = '\n' + data.trim() + '\n'
+          document.head.appendChild(link)
+        }
+        callback(result)
+      })
     },
     // 引入模块
     import: function (path, callback) {

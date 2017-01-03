@@ -1,8 +1,19 @@
 # JTaro Module
 
-利用nodejs和Rollup.js使前端可使用ES6模块规范进行开发
+JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本身是为更好地服务JTaro而设计，但并不依赖JTaro，完全可以独立运行。
+
+现正处于内测阶段！！！
+
+## 特点
+
+- 轻盈易用，几个文件，数百行代码，只需要开启其nodejs服务即可使用ES6模块语法编写代码，无需Babel转译
+- 方便排错，浏览器展示代码与本地js文件一一对应，错误行号一目了然
+- 低耗高能，只需要安装nodejs 6以上版本即可运行，在3000元windows机上跑也是扛扛的
+- 代码精简，上线代码使用Rollup.js打包，除寥寥几行用于处理样式的代码外，不带任何模块管理的代码
 
 ## 开始使用
+
+### 开发模式
 
 1. 将src文件夹拷贝到自己的项目上，重命名为`jtaro-module`
 2. 开启本地静态文件服务，在自己的项目目录里使用命名行（终端）运行`node jtaro-module/server.js`，默认为3000端口，可自定义端口`node jtaro-module/server.js 3030`
@@ -11,7 +22,32 @@
 
 建议使用[Visual Studio Code](https://code.visualstudio.com/)进行开发，可直接在编辑器开启nodejs服务
 
-## 实现原理
+### 上线模式
+
+1. 安装rollup、引入`rollup-plugin-jtaro-module.js`添加到rollup的插件里，打包入口文件
+2. 删除index.html的`jtaro-module/client.js`
+
+与Rollup.js更多相关内容不在本页范围内，请自行谷歌/百度。
+
+大概代码长这样
+
+```js
+var rollup = require('rollup')
+var path = require('path')
+var jtaroModule = require('./src/rollup-plugin-jtaro-module.js')
+
+rollup.rollup({
+  entry: path.resolve('demos/x/x.js'),
+  plugins: [jtaroModule({ root: 'demos' })]
+}).then(function (bundle) {
+  bundle.write({
+    format: 'iife',
+    dest: 'build/x/x.js'
+  })
+})
+```
+
+## 处理js
 
 本地开启nodejs静态服务，拦截所有js文件，检测文件内容，将import/export解释成ES5可执行的方法，再返回给浏览器
 
@@ -44,6 +80,79 @@ JTaroModules['/main.js'].default = {
   a: a
 }
 ```
+
+## 处理html
+
+当引入的文件为html时，JTaro Module会将html里的style在head里生成样式表，其余内容以字符串形式返回。JTaro是基于Vue开发的，因此JTaro Module的html内容也应该遵循Vue的模板规则，最外层只有一个dom元素。另外，html文件里只允许一个style标签
+
+推荐
+
+```html
+<style>
+body {}
+</style>
+<div>
+  <p>最外层只有一个div</p>
+</div>
+```
+
+不推荐
+
+```
+<style>
+body {}
+</style>
+<div>
+  <p>最外层只有一个div</p>
+</div>
+<div>
+  我是最外层的第二个div
+</div>
+```
+
+JTaro Module会将style和div(dom元素)分离，并在第一个div加上与style对应的标识，以达到作用域限定的目的。如果你要给第一个div加样式，只需要在`{}`里写样式，前面不需要任何选择器
+
+像这样子
+
+a.html
+
+```html
+<style>
+h1 {font-size:32px;}
+{background: #ddd;} /* 给顶层div加样式 */
+</style>
+<div>
+  <h1>Hello JTaro Module</h1>
+</div>
+```
+
+a.js
+
+```js
+import a from './a.html'
+document.body.innerHTML = a
+```
+
+将解释成
+
+```
+<html>
+  <head>
+    <style id="jtaro_style_a">
+    [jtaro_a] h1 {font-size:32px;}
+    </style>
+  </head>
+  <body>
+    <div jtaro_a>
+      <h1>Hello JTaro Module</h1>
+    </div>
+  </body>
+</html>
+```
+
+## 处理css
+
+直接将css文件的内容以style标签的形式在head创建，不会额外加任何标签
 
 ## 注意事项
 
@@ -96,9 +205,13 @@ export function a () {
 export default { a: 1 }
  ```
 
-## 上线部署
+## rollup-plugin-jtaro-module
 
-JTaro Module只适用于开发环境，上线需要使用[Rollup.js](http://rollupjs.org/)进行打包。使用Rollup.js打包后，可移除jtaro-module/client.js。与Rollup.js更多相关内容不在本页范围内，请自行百度。
+使Rollup支持引入html和css
+
+| 选项 | 默认值 | 说明 |
+|:----:|:----:|:----|\
+| root | undefined | 站点根目录 |
 
 ## 参考
 
@@ -108,6 +221,8 @@ JTaro Module只适用于开发环境，上线需要使用[Rollup.js](http://roll
 
 ## 后语
 
-JTaro Module只能用于解释js模块，对于html/css的引入可谓爱莫能及，与webpack相比，简直是弱到爆。JTaro Module之所以存在，是因为webpack太过于强大，以至新手根本无法接近，随便抛一个错误足可让我等渣渣通宵达旦。JTaro Module每个文件都与真实文件对应，所有浏览器可捕捉的错误都一目了然，也许错误行号与原文件对不上，`ctrl/cmd + f`一下就很轻易搜到错误源头。webpack是把牛刀，JTaro Module只是用来削水果的，合不合用就要使用者们自己度量了。
+JTaro Module只能用于解决js/html/css的模块化，对于引入es6/typescript/less/sass/postCss等可谓是爱莫能及，与webpack相比，简直是弱到爆。JTaro Module之所以存在，是因为webpack太过于强大，以至新手根本无法接近，随便抛一个错误足可让我等渣渣通宵达旦。JTaro Module每个文件都与真实文件对应，所有浏览器可捕捉的错误都显而易见，也许错误行号与原文件对不上，`ctrl/cmd + f`一下就很轻易搜到错误源头。webpack是把牛刀，JTaro Module只是用来削水果的，合不合用就要使用者们自己度量了。
 
-JTaro Module虽然只能处理js文件，而且只能处理import/export，但作为JTaro的其中一员（模块管理）已然足矣。
+## TODO
+
+- 在一个文件多次引入同一文件时偶然会报错，待收复
