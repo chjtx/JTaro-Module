@@ -135,11 +135,12 @@ document.body.innerHTML = a
 
 将解释成
 
-```
+```html
 <html>
   <head>
     <style id="jtaro_style_a">
     [jtaro_a] h1 {font-size:32px;}
+    [jtaro_a] {background: #ddd;}
     </style>
   </head>
   <body>
@@ -207,7 +208,7 @@ export default { a: 1 }
 
 ## rollup-plugin-jtaro-module
 
-使Rollup支持引入html和css
+Rollup的JTaro Module插件，使Rollup支持引入html和css
 
 | 选项 | 默认值 | 说明 |
 |:----:|:----:|:----|\
