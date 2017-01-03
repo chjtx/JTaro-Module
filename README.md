@@ -51,6 +51,7 @@ JTaroModules['/main.js'].default = {
 - 所有import的路径都是相对当前文件的，JTaro Module会自动根据当前文件查找目标文件
 - a.js引入b.js，b.js引入a.js这类循环引入不会重复加载，但代码可能不会按预期的那样执行
 - import/export必须独立成行，即同一行不能出现两个import/export
+- import的文件必须加后缀，目前只支持js/html/css三种后缀文件
 
 ## 支持import的5种语法
 

@@ -7,6 +7,13 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "build",
+            "program": "${workspaceRoot}/build.js",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "启动程序",
             "program": "${workspaceRoot}/src/server.js",
             "cwd": "${workspaceRoot}"

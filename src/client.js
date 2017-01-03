@@ -136,12 +136,6 @@
       }
       callback(result)
     },
-    importOther: function (result, callback) {
-      this.ajax(result.src, function (data) {
-        window.JTaroModules[result.src] = { default: data }
-        callback(result)
-      })
-    },
     // 引入模块
     import: function (path, callback) {
       var result = this.path.resolve(path)
@@ -160,7 +154,7 @@
 
       // other
       } else {
-        this.importOther(result, callback)
+        console.error('Can only import html/css/js!!! `JTaroLoader.import(\'' + result.src + '\', g)` load fail from ' + result.from)
       }
     }
   }

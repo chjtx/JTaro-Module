@@ -1,30 +1,66 @@
-define(['main.js', 'http://www.chjtx.com/JRoll/build/jroll.2.4.3.min.js', 'http://www.chjtx.com/JRoll/extends/jroll-fixedinput/build/jroll-fixedinput.1.0.2.min.js'], function (main_js$1, http___www_chjtx_com_JRoll_build_jroll_2_4_3_min_js, http___www_chjtx_com_JRoll_extends_jrollFixedinput_build_jrollFixedinput_1_0_2_min_js) { 'use strict';
+(function () {
+'use strict';
 
-	window.b = 'b'
+function _$styleInject (id, css) {
+  var s=document.getElementById(id)
+  if(!s){
+    s=document.createElement("style")
+    s.id=id
+    s.innerHTML=css
+    document.head.appendChild(s)
+  }
+}
 
-	(function (main_js) {
-		'use strict';
+window.b = 'b';
 
-		window.b = 'b'
+var bbb = { bbb: 'hahaha' };
 
-		window.x = 'x'
+_$styleInject("jtaro_style_demos_a", "\n[jtaro_demos_a] h1 {color:red;}\n[jtaro_demos_a] div,\n[jtaro_demos_a] li {font-size: 16px;}\n");
+var tpl = "<div jtaro_demos_a >\r\n  <h1>HEllo JTaro Module !!!</h1>\r\n</div>";
 
-		// import 'abc.js'
-		/* import 'bbb.js'
-		//*/
+// import { x as bb } from './x/x.js' // x.js
+// import 'main.js'
 
-		window.a = 'a' // import 'abc.js'
+// import 'abc.js'
+/* import 'bbb.js'
+//*/
 
-		/*
-		export var x = x
-		*/
+// console.log(bb)
+console.log(bbb);
 
-		console.log(window.a)
-		console.log(window.b)
-		console.log(window.x)
+var a = 'a'; // import 'abc.js'
+var aaa = 'aaa';
+var aa = bbb;
+function aaaa () {
+  return 'aaaa'
+}
+// export default a5
+function a6 () {
+  return 'a6'
+}
 
-	}(main_js));
 
-	window.x = 'x'
+/*
+export var x = x
+*/
 
+
+var a$1 = Object.freeze({
+	a: a,
+	aa: aa,
+	a3: aaa,
+	aaaa: aaaa,
+	default: a6
 });
+
+_$styleInject("jtaro_css_demos_a", "\nbody {\r\n  background: #ddd;\r\n}\n");
+
+// import txt from './123.txt'
+
+// export var x = 'xxx'
+
+console.log(a$1);
+// console.log(txt)
+document.getElementById('jtaro_app').innerHTML = tpl;
+
+}());
