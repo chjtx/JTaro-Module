@@ -22,10 +22,8 @@
   "devDependencies": {
     "eslint": "^3.9.1",
     "eslint-config-vue": "^2.0.0",
-    "eslint-plugin-vue": "^1.0.0"
-  },
-  "dependencies": {
+    "eslint-plugin-vue": "^1.0.0",
     "rollup": "^0.38.0",
-    "rollup-pluginutils": "^1.5.2"
+    "rollup-plugin-jtaro-module": "0.0.1"
   }
 }

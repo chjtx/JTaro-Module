@@ -11,6 +11,10 @@ JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本�
 - 低耗高能，只需要安装nodejs 6以上版本即可运行，在3000元windows机上跑也是扛扛的
 - 代码精简，上线代码使用Rollup.js打包，除寥寥几行用于处理样式的代码外，不带任何模块管理的代码
 
+## 示例
+
+[运行示例](https://github.com/chjtx/JTaro-Module/tree/master/demos)
+
 ## 开始使用
 
 ### 开发模式
@@ -24,7 +28,7 @@ JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本�
 
 ### 上线模式
 
-1. 安装rollup、引入`rollup-plugin-jtaro-module.js`添加到rollup的插件里，打包入口文件
+1. 安装rollup、引入`rollup-plugin-jtaro-module`添加到rollup的插件里，打包入口文件
 2. 删除index.html的`jtaro-module/client.js`
 
 与Rollup.js更多相关内容不在本页范围内，请自行谷歌/百度。
@@ -34,7 +38,7 @@ JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本�
 ```js
 var rollup = require('rollup')
 var path = require('path')
-var jtaroModule = require('./src/rollup-plugin-jtaro-module.js')
+var jtaroModule = require('rollup-plugin-jtaro-module')
 
 rollup.rollup({
   entry: path.resolve('demos/x/x.js'),
@@ -98,7 +102,7 @@ body {}
 
 不推荐
 
-```
+```html
 <style>
 body {}
 </style>
@@ -153,7 +157,7 @@ document.body.innerHTML = a
 
 ## 处理css
 
-直接将css文件的内容以style标签的形式在head创建，不会额外加任何标签
+直接将css文件的内容以style标签的形式在head创建，不会额外加任何标记
 
 ## 注意事项
 
@@ -211,8 +215,8 @@ export default { a: 1 }
 Rollup的JTaro Module插件，使Rollup支持引入html和css
 
 | 选项 | 默认值 | 说明 |
-|:----:|:----:|:----|\
-| root | undefined | 站点根目录 |
+|:----:|:----:|:----|
+| root | 当前工作目录 | 批定站点根目录，让JTaro Module能正确处理文件路径 |
 
 ## 参考
 
