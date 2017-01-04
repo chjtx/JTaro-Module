@@ -24,6 +24,6 @@
     "eslint-config-vue": "^2.0.0",
     "eslint-plugin-vue": "^1.0.0",
     "rollup": "^0.38.0",
-    "rollup-plugin-jtaro-module": "0.0.1"
+    "rollup-plugin-jtaro-module": "0.0.2"
   }
 }
