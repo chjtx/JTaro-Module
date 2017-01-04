@@ -1,4 +1,4 @@
-/*! JTaro-Module client.js v0.0.2 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module client.js v0.0.3 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global XMLHttpRequest */
 (function () {
   window.JTaroModules = {}
@@ -99,7 +99,7 @@
         if (styleText) {
           style = document.getElementById('jtaro_style' + id)
           if (!style) {
-            css = '\n[jtaro' + id + '] ' + styleText[1].trim()
+            css = '\n[jtaro' + id + '] ' + styleText[1].replace(/\bthis\b/, '').trim()
               .replace(/}\s+(?!$)/g, '}\n[jtaro' + id + '] ')
               .split(/,\s+/).join(',\n[jtaro' + id + '] ') + '\n'
             style = document.createElement('style')

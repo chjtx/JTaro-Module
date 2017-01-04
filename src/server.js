@@ -1,4 +1,4 @@
-/*! JTaro-Module server.js v0.0.2 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module server.js v0.0.3 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 var fs = require('fs')
 var path = require('path')
 var http = require('http')
