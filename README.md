@@ -114,7 +114,7 @@ body {}
 </div>
 ```
 
-JTaro Module会将style和div(dom元素)分离，并在第一个div加上与style对应的标识，以达到作用域限定的目的。如果你要给第一个div加样式，只需要在`{}`里写样式，前面不需要任何选择器
+JTaro Module会将style和div(dom元素)分离，并在第一个div加上与style对应的标识，以达到作用域限定的目的。如果你要给第一个div加样式，只需要在`{}`里写样式，前面不需要任何选择器。如果某些编辑器对`{}`发出警告，看着不爽，可以这样写`this {}`，this表示第一个div
 
 像这样子
 
@@ -124,6 +124,7 @@ a.html
 <style>
 h1 {font-size:32px;}
 {background: #ddd;} /* 给顶层div加样式 */
+this {background: #ddd;} /* 给顶层div加样式，防止编辑器发出警告 */
 </style>
 <div>
   <h1>Hello JTaro Module</h1>

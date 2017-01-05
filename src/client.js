@@ -1,4 +1,4 @@
-/*! JTaro-Module client.js v0.0.3 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module client.js v0.0.4 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global XMLHttpRequest */
 (function () {
   window.JTaroModules = {}
@@ -21,7 +21,7 @@
         return p.substr(0, p.lastIndexOf('/'))
       },
       resolve: function (p) {
-        var currentScript = document.currentScript.src || document.baseURI
+        var currentScript = document.currentScript && document.currentScript.src || document.baseURI.split('?')[0].split('#')[0]
         var d = this.dirname(currentScript)
         var path
 
