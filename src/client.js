@@ -3,6 +3,17 @@
 (function () {
   window.JTaroModules = {}
 
+  function runScriptCallback (script, callback, result) {
+    if (script.hasAttribute('complete')) {
+      callback(result)
+    } else {
+      script.addEventListener('load', function () {
+        this.setAttribute('complete', '')
+        callback(result)
+      })
+    }
+  }
+
   var loader = {
     // 同步加载
     ajax: function (path, callback) {
@@ -48,11 +59,11 @@
     },
     // 判断脚本是否存在
     isExist: function (path) {
-      var exist = false
+      var exist
       var scripts = document.getElementsByTagName('script')
       for (var i = 0, l = scripts.length; i < l; i++) {
         if (scripts[i].src === path) {
-          exist = true
+          exist = scripts[i]
           break
         }
       }
@@ -60,26 +71,28 @@
     },
     importJs: function (result, callback) {
       var me = this
-      var script
-      if (!me.isExist(result.path)) {
+      var script = me.isExist(result.path)
+      if (!script) {
         script = document.createElement('script')
         script.src = result.src
-        script.onload = function () {
-          if (typeof callback === 'function') callback(result)
-        }
+        script.addEventListener('load', function () {
+          this.setAttribute('complete', '')
+          callback(result)
+        })
         script.onerror = function (e) {
           console.error('`JTaroLoader.import(\'' + result.src + '\', g)` load fail from ' + result.from)
         }
         setTimeout(function () {
           // 防止多次引入同一模块
-          if (!me.isExist(result.path)) {
+          var s = me.isExist(result.path)
+          if (!s) {
             document.head.appendChild(script)
           } else {
-            callback(result)
+            runScriptCallback(s, callback, result)
           }
         }, 0)
-      } else if (typeof callback === 'function') {
-        callback(result)
+      } else {
+        runScriptCallback(script, callback, result)
       }
     },
     // 将路径转换成id
