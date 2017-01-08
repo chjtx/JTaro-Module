@@ -120,10 +120,10 @@ function joinVariables (exports) {
   return s
 }
 
-function mixHeader (loaders) {
-  return '(function (f) {\n' +
-    '  var count = ' + loaders.imports.length + '\n' +
-    '  function g () { if (!--count) f.apply(null' + joinImports(loaders.exports) + ')}\n  ' +
+function mixHeader (loaders, name) {
+  return '(function (f) {\n  JTaroAssets[\'' + name + '\'] = 1\n' +
+    '  function g () { f.apply(null' + joinImports(loaders.exports) + ')}\n' +
+    '  g.count = ' + loaders.imports.length + '\n  ' +
     loaders.imports.join('\n  ') +
     '\n})(function (' + joinVariables(loaders.exports) + ') {\n\n'
 }
@@ -205,7 +205,7 @@ module.exports = function (file, name) {
     // 转换成JTaroLoader.import
     loaders = parseImport(imports, name)
     // 头部
-    header = mixHeader(loaders)
+    header = mixHeader(loaders, name)
     // 去掉已转换的import
     file = header + removeImport(imports, file) + '})'
   }

@@ -229,6 +229,3 @@ Rollup的JTaro Module插件，使Rollup支持引入html和css
 
 JTaro Module只能用于解决js/html/css的模块化，对于引入es6/typescript/less/sass/postCss等可谓是爱莫能及，与webpack相比，简直是弱到爆。JTaro Module之所以存在，是因为webpack太过于强大，以至新手根本无法接近，随便抛一个错误足可让我等渣渣通宵达旦。JTaro Module每个文件都与真实文件对应，所有浏览器可捕捉的错误都显而易见，也许错误行号与原文件对不上，`ctrl/cmd + f`一下就很轻易搜到错误源头。webpack是把牛刀，JTaro Module只是用来削水果的，合不合用就要使用者们自己度量了。
 
-## TODO
-
-- 在一个文件多次引入同一文件时偶然会报错，待收复

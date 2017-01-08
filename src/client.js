@@ -1,15 +1,39 @@
 /*! JTaro-Module client.js v0.0.4 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global XMLHttpRequest */
+/**
+ * 保证先执行依赖文件的实现思路
+ * 1、服务器解释js文件，符合import条件的文件解释成闭包并在JTaroAssets标记该文件
+ * 2、执行JTaroLoader.import时将回调压入assets
+ * 3、文件加载完成时判断该文件在JTaroAssets是否有标记
+ * 4、如果有标记，表明该文件引入其它文件，跳过
+ * 5、如果没标记，表明该文件没引入其它文件，应该执行父文件的回调
+ * 6、弹出assets的最后一个成员（回调方法），并将其计算器减1，如果该回调的count为0，表明所有依赖均已加载完成，执行该回调，并再次弹出assets的最后一个成员，重复步骤6，一直到assets的length为0
+ */
 (function () {
+  var assets = []
   window.JTaroModules = {}
+  window.JTaroAssets = {}
 
-  function runScriptCallback (script, callback, result) {
+  // 如果该脚本没引入其它模块，立即执行回调
+  function execScript (src) {
+    var pop
+    if (assets.length && (!src || !window.JTaroAssets.hasOwnProperty(src))) {
+      pop = assets.pop()
+      pop.count--
+      if (!pop.count) {
+        pop()
+        execScript()
+      }
+    }
+  }
+
+  function runScriptCallback (script, result) {
     if (script.hasAttribute('complete')) {
-      callback(result)
+      execScript(result.src)
     } else {
       script.addEventListener('load', function () {
         this.setAttribute('complete', '')
-        callback(result)
+        execScript(result.src)
       })
     }
   }
@@ -69,7 +93,7 @@
       }
       return exist
     },
-    importJs: function (result, callback) {
+    importJs: function (result) {
       var me = this
       var script = me.isExist(result.path)
       if (!script) {
@@ -77,7 +101,7 @@
         script.src = result.src
         script.addEventListener('load', function () {
           this.setAttribute('complete', '')
-          callback(result)
+          execScript(result.src)
         })
         script.onerror = function (e) {
           console.error('`JTaroLoader.import(\'' + result.src + '\', g)` load fail from ' + result.from)
@@ -88,18 +112,18 @@
           if (!s) {
             document.head.appendChild(script)
           } else {
-            runScriptCallback(s, callback, result)
+            runScriptCallback(s, result)
           }
         }, 0)
       } else {
-        runScriptCallback(script, callback, result)
+        runScriptCallback(script, result)
       }
     },
     // 将路径转换成id
     path2id: function (path) {
       return path.substr(0, path.lastIndexOf('.')).replace(/\//g, '_')
     },
-    importHtml: function (result, callback) {
+    importHtml: function (result) {
       var me = this
       this.ajax(result.src, function (data) {
         var reg = /<style>([\s\S]+)<\/style>/
@@ -134,10 +158,10 @@
         }
 
         window.JTaroModules[result.src] = { default: data }
-        callback(result)
+        execScript(result.src)
       })
     },
-    importCss: function (result, callback) {
+    importCss: function (result) {
       var id = 'jtaro_css' + this.path2id(result.src)
       this.ajax(result.src, function (data) {
         var link = document.getElementById(id)
@@ -147,24 +171,25 @@
           link.innerHTML = '\n' + data.trim() + '\n'
           document.head.appendChild(link)
         }
-        callback(result)
+        execScript(result.src)
       })
     },
     // 引入模块
     import: function (path, callback) {
       var result = this.path.resolve(path)
 
+      assets.push(callback)
       // js
       if (/\.js$/.test(result.src)) {
-        this.importJs(result, callback)
+        this.importJs(result)
 
       // html
       } else if (/\.html$/.test(result.src)) {
-        this.importHtml(result, callback)
+        this.importHtml(result)
 
       // css
       } else if (/\.css$/.test(result.src)) {
-        this.importCss(result, callback)
+        this.importCss(result)
 
       // other
       } else {
