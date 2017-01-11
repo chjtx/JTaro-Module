@@ -1,4 +1,4 @@
-/*! JTaro-Module parse.js v0.0.4 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module parse.js v0.0.5 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /**
  * JTaro Module
  * 将含以下规则的import/export解释成ES5可执行代码
@@ -122,8 +122,8 @@ function joinVariables (exports) {
 
 function mixHeader (loaders, name) {
   return '(function (f) {\n  JTaroAssets[\'' + name + '\'] = 1\n' +
-    '  function g () { f.apply(null' + joinImports(loaders.exports) + ')}\n' +
-    '  g.count = ' + loaders.imports.length + '\n  ' +
+    '  var g = {count:' + loaders.imports.length + '}\n' +
+    '  g.callback = function () { f.apply(null' + joinImports(loaders.exports) + ')}\n  ' +
     loaders.imports.join('\n  ') +
     '\n})(function (' + joinVariables(loaders.exports) + ') {\n\n'
 }

@@ -47,7 +47,7 @@ http.createServer((req, res) => {
       fs.readFile(realPath, 'binary', function (err, file) {
         if (err) {
           res.writeHead(500, { 'Content-Type': 'text/plain' })
-          res.end(err)
+          res.end(err.message)
         } else {
           if (ext === 'js') {
             file = jtaroModule(file, req.url)
