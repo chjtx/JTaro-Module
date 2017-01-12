@@ -19,9 +19,9 @@ JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本�
 
 ### 开发模式
 
-1. 将src文件夹拷贝到自己的项目上，重命名为`jtaro-module`
-2. 开启本地静态文件服务，在自己的项目目录里使用命名行（终端）运行`node jtaro-module/server.js`，默认为3000端口，可自定义端口`node jtaro-module/server.js 3030`
-3. 在index.html的head引入`jtaro-module/client.js`，在body最后引入入口文件，JTaro Module将会从入口文件开始加载所有依赖文件
+1. 安装`npm install -D jtaro-module`
+2. 开启本地静态文件服务，在自己的项目目录里使用命名行（终端）运行`node node_modules/jtaro-module/src/server.js`，默认为3000端口，可自定义端口`node node_modules/jtaro-module/src/server.js 3030`
+3. 在index.html的head引入`node_modules/jtaro-module/src/client.js`，在body最后引入入口文件，JTaro Module将会从入口文件开始加载所有依赖文件
 4. 在浏览器上运行`localhost:3000/index.html`，所有js文件都会被拦截，所有符合条件的import/export将会被转换
 
 建议使用[Visual Studio Code](https://code.visualstudio.com/)进行开发，可直接在编辑器开启nodejs服务
@@ -29,11 +29,12 @@ JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本�
 ### 上线模式
 
 1. 安装rollup、引入`rollup-plugin-jtaro-module`添加到rollup的插件里，打包入口文件
-2. 删除index.html的`jtaro-module/client.js`
+2. 拷贝index.html到build/并删除拷贝的index.html的`node_modules/jtaro-module/src/client.js`
+3. `node build.js`
 
 与Rollup.js更多相关内容不在本页范围内，请自行谷歌/百度。
 
-大概代码长这样
+build.js大概代码长这样
 
 ```js
 var rollup = require('rollup')
@@ -41,12 +42,12 @@ var path = require('path')
 var jtaroModule = require('rollup-plugin-jtaro-module')
 
 rollup.rollup({
-  entry: path.resolve('demos/x/x.js'),
+  entry: path.resolve('demos/main.js'),
   plugins: [jtaroModule({ root: 'demos' })]
 }).then(function (bundle) {
   bundle.write({
     format: 'iife',
-    dest: 'build/x/x.js'
+    dest: 'build/main.js'
   })
 })
 ```
@@ -58,6 +59,7 @@ rollup.rollup({
 例：
 
 ```js
+// main.js
 import { a } from './a.js'
 
 console.log(a)
@@ -71,18 +73,21 @@ export default {
 
 ```js
 (function (f) {
-  var count = 1
-  function g () { if (!--count) f.apply(null, [
+  JTaroAssets['/main.js'] = 1
+  var g = {count:1}
+  g.callback = function () { f.apply(null, [
     JTaroModules['/a.js'].default
   ]) }
   JTaroLoader.import('./a.js', g)
 })(function (a) {
+// main.js
 
 console.log(a)
 
 JTaroModules['/main.js'].default = {
   a: a
 }
+})
 ```
 
 ## 处理html
@@ -138,7 +143,7 @@ import a from './a.html'
 document.body.innerHTML = a
 ```
 
-将解释成
+运行结果
 
 ```html
 <html>
@@ -162,7 +167,7 @@ document.body.innerHTML = a
 
 ## 注意事项
 
-- 目前只在chrome浏览器通过测试，而且将来也不太可能会去兼容其它浏览器。是的，没看错，对非chrome浏览器不做兼容。上线部署的时候将会移除所有JTaro Module的代码，因此，只需要保证在chrome浏览器上开发不出问题就够了
+- 目前只在chrome浏览器通过测试，而且将来也不太可能会去兼容其它浏览器。是的，没看错，对非chrome浏览器不做兼容。上线部署的时候将会移除几乎所有JTaro Module的代码，因此，只需要保证在chrome浏览器上开发不出问题就够了
 - 所有import的路径都是相对当前文件的，JTaro Module会自动根据当前文件查找目标文件
 - a.js引入b.js，b.js引入a.js这类循环引入不会重复加载，但代码可能不会按预期的那样执行
 - import/export必须独立成行，即同一行不能出现两个import/export

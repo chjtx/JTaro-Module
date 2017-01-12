@@ -1,4 +1,4 @@
-/*! JTaro-Module client.js v0.0.5 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module client.js v0.0.6 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global XMLHttpRequest */
 /**
  * 保证先执行依赖文件的实现思路
@@ -21,7 +21,7 @@
       pop = assets.pop()
       pop.count--
       if (!pop.count) {
-        pop.callback()
+        pop.callback(pop.data)
         execScript()
       }
     }
@@ -178,7 +178,7 @@
     import: function (path, param) {
       var result = this.path.resolve(path)
 
-      param.callback.bind(null, result)
+      param.data = result
       assets.push(param)
       // js
       if (/\.js$/.test(result.src)) {

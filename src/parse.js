@@ -1,4 +1,4 @@
-/*! JTaro-Module parse.js v0.0.5 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module parse.js v0.0.6 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /**
  * JTaro Module
  * 将含以下规则的import/export解释成ES5可执行代码
@@ -42,7 +42,7 @@ function parseImport (arr, name) {
   var newArr = []
   var regNormal = /import +['"](.+)['"]/
   var regBracket = /import +\{([^}]+)\} +from +['"](.+)['"]/
-  var regDefault = /import +([^ ]+) +from +['"](.+)['"]/
+  var regDefault = /import +([^ {}]+) +from +['"](.+)['"]/
   var regAll = /import +\* +as +([^ ]+) +from +['"](.+)['"]/
   var varArr = []
   var path
@@ -130,7 +130,7 @@ function mixHeader (loaders, name) {
 
 function removeImport (a, f) {
   for (var i = 0, l = a.length; i < l; i++) {
-    f = f.replace(new RegExp(a[i].replace('*', '\\*') + '[\r\n]+'), '')
+    f = f.replace(new RegExp(a[i].replace('*', '\\*') + '([\r\n]+|$)'), '')
   }
   return f
 }
@@ -207,7 +207,7 @@ module.exports = function (file, name) {
     // 头部
     header = mixHeader(loaders, name)
     // 去掉已转换的import
-    file = header + removeImport(imports, file) + '})'
+    file = header + removeImport(imports, file) + '\n})'
   }
 
   // 提取export
