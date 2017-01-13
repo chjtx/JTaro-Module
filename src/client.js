@@ -1,4 +1,4 @@
-/*! JTaro-Module client.js v0.0.6 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module client.js v0.0.7 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global XMLHttpRequest */
 /**
  * 保证先执行依赖文件的实现思路
@@ -138,7 +138,11 @@
           if (!style) {
             css = '\n[jtaro' + id + '] ' + styleText[1].replace(/\bthis\b/, '').trim()
               .replace(/}\s+(?!$)/g, '}\n[jtaro' + id + '] ')
-              .split(/,\s+/).join(',\n[jtaro' + id + '] ') + '\n'
+              .replace(/\([^\n\r]+\)/g, function (match) {
+                return match.replace(/,/g, '<mark>')
+              })
+              .split(/,\s+/).join(',\n[jtaro' + id + '] ')
+              .replace(/<mark>/g, ',') + '\n'
             style = document.createElement('style')
             style.id = 'jtaro_style' + id
             style.innerHTML = css
