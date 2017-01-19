@@ -1,6 +1,6 @@
 # JTaro Module Demo
 
-## 运行示例
+## 运行开发示例
 
 首页确保已安装git和nodejs(6或以上)
 
@@ -14,7 +14,7 @@ node src/server.js
 
 在浏览器打开`http://localhost:3000/demos/index.html`
 
-## Rollup打包
+## Rollup打包示例
 
 ```bash
 # 安装rollup、rollup-plugin-jtaro-module

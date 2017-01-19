@@ -1,4 +1,4 @@
-/*! JTaro-Module parse.js v0.0.6 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module parse.js v0.0.7 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /**
  * JTaro Module
  * 将含以下规则的import/export解释成ES5可执行代码
@@ -45,10 +45,10 @@ function parseImport (arr, name) {
   var regDefault = /import +([^ {}]+) +from +['"](.+)['"]/
   var regAll = /import +\* +as +([^ ]+) +from +['"](.+)['"]/
   var varArr = []
-  var path
   var temp
   var variables
   for (var i = 0, l = arr.length; i < l; i++) {
+    let path = ''
     // import '**.js'
     if (regNormal.test(arr[i])) {
       path = 'JTaroLoader.import(\'' + regNormal.exec(arr[i])[1] + '\', g)'
@@ -87,7 +87,11 @@ function parseImport (arr, name) {
       })
       path = 'JTaroLoader.import(\'' + temp[2] + '\', g)'
     }
-    newArr.push(path)
+    if (path === '') {
+      arr[i] = ''
+    } else {
+      newArr.push(path)
+    }
   }
   return {
     imports: newArr,
