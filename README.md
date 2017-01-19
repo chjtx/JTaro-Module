@@ -1,8 +1,17 @@
+# 公测中...
+
 # JTaro Module
 
 JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本身是为更好地服务JTaro而设计，但并不依赖JTaro，完全可以独立运行。
 
-现正处于内测阶段！！！
+## 前言
+
+- 如果你想使用ES6模块语法管理代码，又不想使用webpack、babel等各种转译
+- 如果你只是想简简单单的写个js、html、css，不需要typescript、postcss等高级工具
+- 如果你想开发时所见到的错误就像使用script标签引入的脚本一样清晰
+- 如果你想上线代码只打包成一个或几个文件以减少文件体积和连接数
+
+那么，你可以继续往下读了！
 
 ## 特点
 
@@ -20,8 +29,8 @@ JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本�
 ### 开发模式
 
 1. 安装`npm install -D jtaro-module`
-2. 开启本地静态文件服务，在自己的项目目录里使用命名行（终端）运行`node node_modules/jtaro-module/src/server.js`，默认为3000端口，可自定义端口`node node_modules/jtaro-module/src/server.js 3030`
-3. 在index.html的head引入`node_modules/jtaro-module/src/client.js`，在body最后引入入口文件，JTaro Module将会从入口文件开始加载所有依赖文件
+2. 在自己的项目目录里使用命名行（终端）运行`node node_modules/jtaro-module/src/server.js`，开启本地静态文件服务，默认为3000端口，可自定义端口`node node_modules/jtaro-module/src/server.js 3030`
+3. 在index.html的head引入`node_modules/jtaro-module/src/client.js`，在body最后引入入口文件（只要是js文件都可当作入口文件），JTaro Module将会从入口文件开始加载所有依赖文件
 4. 在浏览器上运行`localhost:3000/index.html`，所有js文件都会被拦截，所有符合条件的import/export将会被转换
 
 建议使用[Visual Studio Code](https://code.visualstudio.com/)进行开发，可直接在编辑器开启nodejs服务
@@ -29,7 +38,7 @@ JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本�
 ### 上线模式
 
 1. 安装rollup、引入`rollup-plugin-jtaro-module`添加到rollup的插件里，打包入口文件
-2. 拷贝index.html到build/并删除拷贝的index.html的`node_modules/jtaro-module/src/client.js`
+2. 拷贝index.html到build/并删除拷贝的index.html里的`node_modules/jtaro-module/src/client.js`
 3. `node build.js`
 
 与Rollup.js更多相关内容不在本页范围内，请自行谷歌/百度。
@@ -52,7 +61,9 @@ rollup.rollup({
 })
 ```
 
-## 处理js
+## JTaro Module 运行原理
+
+### 处理js
 
 本地开启nodejs静态服务，拦截所有js文件，检测文件内容，将import/export解释成ES5可执行的方法，再返回给浏览器
 
@@ -90,7 +101,7 @@ JTaroModules['/main.js'].default = {
 })
 ```
 
-## 处理html
+### 处理html
 
 当引入的文件为html时，JTaro Module会将html里的style在head里生成样式表，其余内容以字符串形式返回。JTaro是基于Vue开发的，因此JTaro Module的html内容也应该遵循Vue的模板规则，最外层只有一个dom元素。另外，html文件里只允许一个style标签
 
@@ -161,7 +172,7 @@ document.body.innerHTML = a
 </html>
 ```
 
-## 处理css
+### 处理css
 
 直接将css文件的内容以style标签的形式在head创建，不会额外加任何标记
 
@@ -172,6 +183,8 @@ document.body.innerHTML = a
 - a.js引入b.js，b.js引入a.js这类循环引入不会重复加载，但代码可能不会按预期的那样执行
 - import/export必须独立成行，即同一行不能出现两个import/export
 - import的文件必须加后缀，目前只支持js/html/css三种后缀文件
+- 入口文件不应该有export
+- 除以下5种import、5种export语法外的ES6模块语法都不会被解释到，例：不支持`export * from '../abc.js'`
 
 ## 支持import的5种语法
 
@@ -184,7 +197,7 @@ import { a, b, c } from './**.js'
 import { a as apple } from './**.js'
 import { a as apple, b as banana } from './**.js'
 
-// 3、默认值赋给变量
+// 3、默认值赋给变量，相当于`import { default as a } from './**.js'`
 import a from './**.js'
 
 // 4、只引入并运行（适用于非ES6模块且有在window域暴露变量的库）
@@ -232,5 +245,9 @@ Rollup的JTaro Module插件，使Rollup支持引入html和css
 
 ## 后语
 
-JTaro Module只能用于解决js/html/css的模块化，对于引入es6/typescript/less/sass/postCss等可谓是爱莫能及，与webpack相比，简直是弱到爆。JTaro Module之所以存在，是因为webpack太过于强大，以至新手根本无法接近，随便抛一个错误足可让我等渣渣通宵达旦。JTaro Module每个文件都与真实文件对应，所有浏览器可捕捉的错误都显而易见，也许错误行号与原文件对不上，`ctrl/cmd + f`一下就很轻易搜到错误源头。webpack是把牛刀，JTaro Module只是用来削水果的，合不合用就要使用者们自己度量了。
+JTaro Module只能用于解决js/html/css的模块化，对于引入es6/typescript/less/sass/postCss等可谓是爱莫能及，与webpack相比，简直是弱到爆。JTaro Module之所以存在，是因为webpack太过于强大，以至新手根本无法接近，随便抛一个错误足可让我等渣渣通宵达旦。JTaro Module每个文件都与真实文件对应，所有浏览器可捕捉的错误都显而易见，也许错误行号与原文件对不上，`ctrl/cmd + f`搜索一下就很轻易搜到错误源头。webpack是把牛刀，JTaro Module只是用来削水果的，合不合用就要使用者们自己度量了。
+
+## License
+
+MIT
 
