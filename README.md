@@ -1,5 +1,3 @@
-# 公测中...
-
 # JTaro Module
 
 JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本身是为更好地服务JTaro而设计，但并不依赖JTaro，完全可以独立运行。
