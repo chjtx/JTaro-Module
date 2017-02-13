@@ -1,4 +1,4 @@
-/*! JTaro-Module client.js v0.0.7 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module client.js v0.0.8 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global XMLHttpRequest */
 /**
  * 保证先执行依赖文件的实现思路
@@ -17,7 +17,7 @@
   // 如果该脚本没引入其它模块，立即执行回调
   function execScript (src) {
     var pop
-    if (assets.length && (!src || !window.JTaroAssets.hasOwnProperty(src))) {
+    if (assets.length && (!src || !window.JTaroAssets[src] || !assets[assets.length - 1].data)) {
       pop = assets.pop()
       pop.count--
       if (!pop.count) {
@@ -182,7 +182,9 @@
     import: function (path, param) {
       var result = this.path.resolve(path)
 
-      param.data = result
+      if (!window.JTaroAssets[result.src]) {
+        param.data = result
+      }
       assets.push(param)
       // js
       if (/\.js$/.test(result.src)) {
