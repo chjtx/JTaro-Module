@@ -1,4 +1,4 @@
-/*! JTaro-Module client.js v0.0.8 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module client.js v0.0.9 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global XMLHttpRequest */
 /**
  * 保证先执行依赖文件的实现思路
@@ -11,18 +11,23 @@
  */
 (function () {
   var assets = []
+  var loader
   window.JTaroModules = {}
   window.JTaroAssets = {}
 
   // 如果该脚本没引入其它模块，立即执行回调
   function execScript (src) {
     var pop
-    if (assets.length && (!src || !window.JTaroAssets[src] || !assets[assets.length - 1].data)) {
-      pop = assets.pop()
-      pop.count--
-      if (!pop.count) {
-        pop.callback(pop.data)
-        execScript()
+    var script
+    if (assets.length) {
+      script = loader.isExist(assets[assets.length - 1].data.path)
+      if (!src || !window.JTaroAssets[src] || (script && script.hasAttribute('complete'))) {
+        pop = assets.pop()
+        pop.param.count--
+        if (!pop.param.count) {
+          pop.param.callback(pop.data)
+          execScript()
+        }
       }
     }
   }
@@ -38,7 +43,7 @@
     }
   }
 
-  var loader = {
+  loader = {
     // 同步加载
     ajax: function (path, callback) {
       var xhr = new XMLHttpRequest()
@@ -181,11 +186,10 @@
     // 引入模块
     import: function (path, param) {
       var result = this.path.resolve(path)
-
-      if (!window.JTaroAssets[result.src]) {
-        param.data = result
-      }
-      assets.push(param)
+      assets.push({
+        param: param,
+        data: result
+      })
       // js
       if (/\.js$/.test(result.src)) {
         this.importJs(result)
