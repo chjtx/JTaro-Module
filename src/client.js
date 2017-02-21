@@ -1,4 +1,4 @@
-/*! JTaro-Module client.js v0.0.9 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module client.js v0.1.0 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global XMLHttpRequest */
 /**
  * 保证先执行依赖文件的实现思路
@@ -10,37 +10,73 @@
  * 6、弹出assets的最后一个成员（回调方法），并将其计算器减1，如果该回调的count为0，表明所有依赖均已加载完成，执行该回调，并再次弹出assets的最后一个成员，重复步骤6，一直到assets的length为0
  */
 (function () {
-  var assets = []
+  var assets = [{
+    path: window.location.origin + '/',
+    src: '/'
+  }]
   var loader
+  var loadCompleted = {}
   window.JTaroModules = {}
   window.JTaroAssets = {}
 
   // 如果该脚本没引入其它模块，立即执行回调
-  function execScript (src) {
-    var pop
-    var script
-    if (assets.length) {
-      script = loader.isExist(assets[assets.length - 1].data.path)
-      if (!src || !window.JTaroAssets[src] || (script && script.hasAttribute('complete'))) {
-        pop = assets.pop()
-        pop.param.count--
-        if (!pop.param.count) {
-          pop.param.callback(pop.data)
-          execScript()
+  function execScript (child) {
+    if (!window.JTaroAssets[child.src]) {
+      loadCompleted[child.src] = 1
+      removeFromFather(child, assets)
+    }
+  }
+
+  // 推进父级
+  function pushIntoFather (child, fathers) {
+    var hasThisChild
+    var i
+    var l
+    var k
+    for (i = 0, l = fathers.length; i < l; i++) {
+      if (!fathers[i].children) fathers[i].children = []
+      if (fathers[i].path === child.from) {
+        hasThisChild = false
+        for (k = 0; k < fathers[i].children.length; k++) {
+          if (fathers[i].children[k].path === child.path) {
+            hasThisChild = true
+            break
+          }
         }
+        if (!hasThisChild) {
+          fathers[i].children.push(child)
+        }
+      }
+      if (fathers[i].children && fathers[i].children.length > 0) {
+        pushIntoFather(child, fathers[i].children)
       }
     }
   }
 
-  function runScriptCallback (script, result) {
-    if (script.hasAttribute('complete')) {
-      execScript(result.src)
-    } else {
-      script.addEventListener('load', function () {
-        this.setAttribute('complete', '')
-        execScript(result.src)
-      })
-    }
+  // 从父级移除
+  function removeFromFather (child, fathers) {
+    fathers.forEach(function (f) {
+      if (f.children.length === 0) return
+      var cb
+      for (var i = 0, l = f.children.length; i < l; i++) {
+        if (f.children[i].path === child.path) {
+          cb = f.children.splice(i, 1)[0]
+          break
+        }
+      }
+
+      if (f.children.length === 0) {
+        if (cb) {
+          cb.callback()
+          loadCompleted[f.src] = 1
+          setTimeout(function () {
+            removeFromFather(f, assets)
+          }, 0)
+        }
+      } else {
+        removeFromFather(child, f.children)
+      }
+    })
   }
 
   loader = {
@@ -52,7 +88,7 @@
           callback(xhr.responseText)
         }
       }
-      xhr.open('GET', path, false)
+      xhr.open('GET', path, true)
       xhr.send()
     },
     // 路径处理
@@ -105,8 +141,7 @@
         script = document.createElement('script')
         script.src = result.src
         script.addEventListener('load', function () {
-          this.setAttribute('complete', '')
-          execScript(result.src)
+          execScript(result)
         })
         script.onerror = function (e) {
           console.error('`JTaroLoader.import(\'' + result.src + '\', g)` load fail from ' + result.from)
@@ -116,12 +151,8 @@
           var s = me.isExist(result.path)
           if (!s) {
             document.head.appendChild(script)
-          } else {
-            runScriptCallback(s, result)
           }
         }, 0)
-      } else {
-        runScriptCallback(script, result)
       }
     },
     // 将路径转换成id
@@ -167,7 +198,7 @@
         }
 
         window.JTaroModules[result.src] = { default: data }
-        execScript(result.src)
+        execScript(result)
       })
     },
     importCss: function (result) {
@@ -180,31 +211,44 @@
           link.innerHTML = '\n' + data.trim() + '\n'
           document.head.appendChild(link)
         }
-        execScript(result.src)
+        execScript(result)
       })
     },
     // 引入模块
     import: function (path, param) {
       var result = this.path.resolve(path)
-      assets.push({
-        param: param,
-        data: result
-      })
+      // var i
+      var child = {
+        src: result.src,
+        from: result.from,
+        path: result.path,
+        callback: param.callback
+      }
+      pushIntoFather(child, assets)
+
+      // 该资源是否已加载完成
+      if (loadCompleted[result.src]) {
+        setTimeout(function () {
+          removeFromFather(child, assets)
+        }, 0)
+        return
+      }
+
       // js
-      if (/\.js$/.test(result.src)) {
-        this.importJs(result)
+      if (/\.js$/.test(child.src)) {
+        this.importJs(child)
 
       // html
-      } else if (/\.html$/.test(result.src)) {
-        this.importHtml(result)
+      } else if (/\.html$/.test(child.src)) {
+        this.importHtml(child)
 
       // css
-      } else if (/\.css$/.test(result.src)) {
-        this.importCss(result)
+      } else if (/\.css$/.test(child.src)) {
+        this.importCss(child)
 
       // other
       } else {
-        console.error('Can only import html/css/js!!! `JTaroLoader.import(\'' + result.src + '\', g)` load fail from ' + result.from)
+        console.error('Can only import html/css/js!!! `JTaroLoader.import(\'' + child.src + '\', g)` load fail from ' + child.from)
       }
     }
   }
