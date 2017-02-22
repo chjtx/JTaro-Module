@@ -2,18 +2,13 @@
 /* global XMLHttpRequest */
 /**
  * 保证先执行依赖文件的实现思路
- * 1、服务器解释js文件，符合import条件的文件解释成闭包并在JTaroAssets标记该文件
- * 2、执行JTaroLoader.import时将回调压入assets
- * 3、文件加载完成时判断该文件在JTaroAssets是否有标记
- * 4、如果有标记，表明该文件引入其它文件，跳过
- * 5、如果没标记，表明该文件没引入其它文件，应该执行父文件的回调
- * 6、弹出assets的最后一个成员（回调方法），并将其计算器减1，如果该回调的count为0，表明所有依赖均已加载完成，执行该回调，并再次弹出assets的最后一个成员，重复步骤6，一直到assets的length为0
+ * 1、引入资源时，创建依赖树，节点主要包含的内容有{from, path, callback}
+ * 2、根据子节点的from和父节点的path，将子节点push进所有依赖该子节点的父节点
+ * 3、资源onload时根据JTaroAssets判断该资源是否有依赖，没有则将该节点从所有有引入该节点的父节点移除，并执行回调，有则略过
+ * 4、从父节点移除后判断父节点的children是否为0，是则表示依赖已全部加载，将该父节点从它的所有父节点移除，即重复第3步直到children不为0
  */
 (function () {
-  var assets = [{
-    path: window.location.origin + '/',
-    src: '/'
-  }]
+  var assets = []
   var loader
   var loadCompleted = {}
   window.JTaroModules = {}
@@ -25,6 +20,23 @@
       loadCompleted[child.src] = 1
       removeFromFather(child, assets)
     }
+  }
+
+  // 如果遍历assets都不存在该path的元素，则该脚本为最上层脚本
+  function isTheTopLevel (p) {
+    var a = []
+    var b = []
+    var i = 0
+    a = a.concat(assets)
+    while (a.length) {
+      b = []
+      for (i = 0; i < a.length; i++) {
+        if (a[i].path === p) return false
+        if (a[i].children) b = b.concat(a[i].children)
+      }
+      a = b
+    }
+    return true
   }
 
   // 推进父级
@@ -215,14 +227,20 @@
       })
     },
     // 引入模块
-    import: function (path, param) {
+    import: function (path, callback) {
       var result = this.path.resolve(path)
-      // var i
       var child = {
         src: result.src,
         from: result.from,
         path: result.path,
-        callback: param.callback
+        callback: callback
+      }
+
+      if (isTheTopLevel(result.from)) {
+        assets.push({
+          path: result.from,
+          src: result.from.replace(window.location.origin, '')
+        })
       }
       pushIntoFather(child, assets)
 

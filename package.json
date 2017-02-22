@@ -1,6 +1,6 @@
 {
   "name": "jtaro-module",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Explain the ES6 module to Es5 syntax",
   "main": "index.js",
   "scripts": {
