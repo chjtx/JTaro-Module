@@ -245,6 +245,15 @@ Rollup的JTaro Module插件，使Rollup支持引入html和css
 
 JTaro Module只能用于解决js/html/css的模块化，对于引入es6/typescript/less/sass/postCss等可谓是爱莫能及，与webpack相比，简直是弱到爆。JTaro Module之所以存在，是因为webpack太过于强大，以至新手根本无法接近，随便抛一个错误足可让我等渣渣通宵达旦。JTaro Module每个文件都与真实文件对应，所有浏览器可捕捉的错误都显而易见，也许错误行号与原文件对不上，`ctrl/cmd + f`搜索一下就很轻易搜到错误源头。webpack是把牛刀，JTaro Module只是用来削水果的，合不合用就要使用者们自己度量了。
 
+那么为什么要造轮子？
+
+- 新人入项，总要安装一大堆脚本工具，npm安装则网络受限，cnpm安装则依赖缺失
+- 公司预算约束，不可能给每位开发者提供mac设备，在3000元windows机上运行webpack等开发环境备受挑战
+- webpack学习成本较高，出现问题处理成本更高，并非新手所能驾驭
+- 经webpack处理过的脚本，并不能很直观的反映出是哪段业务代码报的错误，增加开发成本
+- .vue文件将html、js、css合在一起适合编写单个组件，对于业务逻辑较多的文件应将html、css和js分离
+- 工具应该用于解放劳动力，而不应该因维护工具而适得其反
+
 ## License
 
 MIT
