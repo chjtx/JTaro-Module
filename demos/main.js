@@ -1,9 +1,10 @@
 /* global echarts $ */
 import './main.css'
-import './vendors/jquery-2.2.3.min.js'
+import 'jquery'
 import './vendors/echarts.min.js'
 import hello from './hello.html'
-import { apple, banana, orange as o } from './fruits.js'
+import a from 'a'
+import { apple, banana, orange as o } from 'fruits'
 
 var main = $('#main')[0]
 // 基于准备好的dom，初始化echarts实例

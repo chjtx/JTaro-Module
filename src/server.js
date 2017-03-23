@@ -1,10 +1,32 @@
-/*! JTaro-Module server.js v0.0.3 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module server.js v0.0.4 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 var fs = require('fs')
 var path = require('path')
 var http = require('http')
 var url = require('url')
 var jtaroModule = require('./parse')
-var port = process.argv[2] || 3000
+var port = 3000 // 默认端口
+var configPath = './jtaro.module.config' // 默认配置文件
+
+// 截取命令
+for (var i = 2; i < process.argv.length; i++) {
+  console.log(process.argv)
+  // 端口
+  if (typeof process.argv[i] === 'number') {
+    port = process.argv[i]
+  }
+  // 配置文件 --config="jtaro.module.config.js"
+  if (/^--config=/.test(process.argv[i])) {
+    configPath = process.argv[i].replace('--config=', '').replace(/^("|')|("|')$/g, '').trim()
+  }
+}
+
+// 使用rollupjs的插件过滤文件内容
+var config
+try {
+  config = require(configPath)
+} catch (e) {
+  config = {}
+}
 
 var mime = {
   'css': 'text/css',
@@ -50,7 +72,10 @@ http.createServer((req, res) => {
           res.end(err.message)
         } else {
           if (ext === 'js') {
-            file = jtaroModule(file, req.url)
+            config.id = path.resolve(__dirname, config.website || '', realPath)
+            config.entry = path.resolve(__dirname, config.entry || '')
+            config.is_jtaro_module = true // 标记给rollup-plugin-paths插件使用
+            file = jtaroModule(file, req.url, config)
           }
 
           res.writeHead(200, { 'Content-Type': contentType })

@@ -229,11 +229,31 @@ export default { a: 1 }
 
 ## rollup-plugin-jtaro-module
 
-Rollup的JTaro Module插件，使Rollup支持引入html和css
+[rollup-plugin-jtaro-module](https://github.com/chjtx/rollup-plugin-jtaro-module) Rollup的JTaro Module插件，使Rollup支持引入html和css
 
 | 选项 | 默认值 | 说明 |
 |:----:|:----:|:----|
-| root | 当前工作目录 | 批定站点根目录，让JTaro Module能正确处理文件路径 |
+| root | 当前工作目录 | 批定站点根目录，填入相对于工程目录的路径，让JTaro Module能正确处理文件路径 |
+
+## 使用rollup的插件
+
+- 与 JTaro Module 源码`server.js`同一目录创建`jtaro.module.config.js`文件
+- 或者在开启服务时指定配置文件`node server.js --config=./jtaro.other.config.js`
+- `--config`选项后面跟的路径是相对`server.js`的，请用`./`或`../`开头
+- 配置该文件后，即可使用rollup的插件对文件进行处理，如使用`rollup-plugin-alias`进行别名修改，`rollup-plugin-babel`进行ES6语法转换等
+
+```js
+// jtaro.module.config.js
+var alias = require('rollup-plugin-alias')
+
+module.exports = {
+  website: '../', // 站点目录，以server.js所在路径为基准
+  entry: '../demos/main.js', // 入口文件，以server.js所在路径为基准
+  plugins: [alias({
+    jquery: './vendors/jquery-2.2.3.min.js' // 以入口文件所在路径为基准
+  })]
+}
+```
 
 ## 参考
 

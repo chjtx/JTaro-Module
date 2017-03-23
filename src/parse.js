@@ -1,4 +1,4 @@
-/*! JTaro-Module parse.js v0.0.8 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module parse.js v0.0.9 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /**
  * JTaro Module
  * 将含以下规则的import/export解释成ES5可执行代码
@@ -15,6 +15,7 @@
  * 4) export default a
  * 5) export { abc as a }
  */
+
 function getImports (text) {
   return text.match(/^[\t ]*import\s+.*/mg)
 }
@@ -38,7 +39,7 @@ function resolvePath (p, d) {
   return d + '/' + p
 }
 
-function parseImport (arr, name) {
+function parseImport (arr, name, plugins) {
   var newArr = []
   var regNormal = /import +['"](.+)['"]/
   var regBracket = /import +\{([^}]+)\} +from +['"](.+)['"]/
@@ -47,11 +48,25 @@ function parseImport (arr, name) {
   var varArr = []
   var temp
   var variables
+
+  // 参照 https://github.com/rollup/rollup/wiki/Plugins#creating-plugins 的resolveId描述
+  function resolveId (a) {
+    var b = null
+    for (var i = 0, l = plugins.resIds.length; i < l; i++) {
+      b = plugins.resIds[i](a, plugins.id)
+      // 只要有一个resolveId函数匹配立即终止
+      if (b) break
+    }
+    // 如果b有值，返回从当前文件到指定文件的相对路径
+    // return b ? getRelativePath(plugins.id, b) : a
+    return b || a
+  }
+
   for (var i = 0, l = arr.length; i < l; i++) {
     let path = ''
     // import '**.js'
     if (regNormal.test(arr[i])) {
-      path = 'JTaroLoader.import(\'' + regNormal.exec(arr[i])[1] + '\', g)'
+      path = 'JTaroLoader.import(\'' + resolveId(regNormal.exec(arr[i])[1]) + '\', g)'
     }
     // import { ... } from '**.js'
     if (regBracket.test(arr[i])) {
@@ -61,31 +76,31 @@ function parseImport (arr, name) {
         var a = i.split(/ +as +/)
         varArr.push({
           alias: a[1] || a[0],
-          name: resolvePath(temp[2], name),
+          name: resolvePath(resolveId(temp[2]), name),
           variable: '.' + a[0]
         })
       })
-      path = 'JTaroLoader.import(\'' + temp[2] + '\', g)'
+      path = 'JTaroLoader.import(\'' + resolveId(temp[2]) + '\', g)'
     }
     // import default from '**.js'
     if (regDefault.test(arr[i])) {
       temp = regDefault.exec(arr[i])
       varArr.push({
         alias: temp[1],
-        name: resolvePath(temp[2], name),
+        name: resolvePath(resolveId(temp[2]), name),
         variable: '.default'
       })
-      path = 'JTaroLoader.import(\'' + temp[2] + '\', g)'
+      path = 'JTaroLoader.import(\'' + resolveId(temp[2]) + '\', g)'
     }
     // import * as a from '**.js'
     if (regAll.test(arr[i])) {
       temp = regAll.exec(arr[i])
       varArr.push({
         alias: temp[1],
-        name: resolvePath(temp[2], name),
+        name: resolvePath(resolveId(temp[2]), name),
         variable: ''
       })
-      path = 'JTaroLoader.import(\'' + temp[2] + '\', g)'
+      path = 'JTaroLoader.import(\'' + resolveId(temp[2]) + '\', g)'
     }
     if (path === '') {
       arr[i] = ''
@@ -194,7 +209,41 @@ function getExportMaps (exps, name) {
   return maps
 }
 
-module.exports = function (file, name) {
+function takePlugins (c) {
+  var p = c.plugins || []
+  var resIds = []
+  var trsFms = []
+  var opts = []
+  p.forEach(function (i) {
+    if (typeof i.resolveId === 'function') resIds.push(i.resolveId)
+    if (typeof i.transform === 'function') trsFms.push(i.transform)
+    if (typeof i.options === 'function') opts.push(i.options)
+  })
+  // 先执行一轮rollup的options
+  opts.forEach(function (o) {
+    o(c)
+  })
+  return {
+    id: c.id,
+    entry: c.entry,
+    resIds: resIds,
+    trsFms: trsFms
+  }
+}
+
+// 执行rollup插件的transform函数
+function doTransform (f, p) {
+  var t
+  for (var i = 0, l = p.trsFms.length; i < l; i++) {
+    t = p.trsFms[i](f, p.id)
+    if (t && t.code) f = t.code
+  }
+  return f
+}
+
+module.exports = function (file, name, config) {
+  var plgs = takePlugins(config)
+
   // 去掉多行注释的副本
   var copy = removeComment(file)
   // 提取import
@@ -206,7 +255,7 @@ module.exports = function (file, name) {
 
   if (imports) {
     // 转换成JTaroLoader.import
-    loaders = parseImport(imports, name)
+    loaders = parseImport(imports, name, plgs)
     // 头部
     header = mixHeader(loaders, name)
     // 去掉已转换的import
@@ -227,5 +276,5 @@ module.exports = function (file, name) {
     })
   }
 
-  return file
+  return doTransform(file, plgs)
 }
