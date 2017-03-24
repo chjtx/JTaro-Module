@@ -1,9 +1,8 @@
 /* global echarts $ */
 import './main.css'
-import 'jquery'
+import 'vendors@jquery-2.2.3.min.js'
 import './vendors/echarts.min.js'
 import hello from './hello.html'
-import a from 'a'
 import { apple, banana, orange as o } from 'fruits'
 
 var main = $('#main')[0]

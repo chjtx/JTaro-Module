@@ -4,7 +4,7 @@ JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本�
 
 ## 前言
 
-- 如果你想使用ES6模块语法管理代码，又不想使用webpack、babel等各种转译
+- 如果你想使用ES6模块语法管理代码，又不想使用webpack这个重型工具
 - 如果你只是想简简单单的写个js、html、css，不需要typescript、postcss等高级工具
 - 如果你想开发时所见到的错误就像使用script标签引入的脚本一样清晰
 - 如果你想上线代码只打包成一个或几个文件以减少文件体积和连接数
@@ -177,7 +177,7 @@ document.body.innerHTML = a
 ## 注意事项
 
 - 目前只在chrome浏览器通过测试，而且将来也不太可能会去兼容其它浏览器。是的，没看错，对非chrome浏览器不做兼容。上线部署的时候将会移除几乎所有JTaro Module的代码，因此，只需要保证在chrome浏览器上开发不出问题就够了
-- 所有import的路径都是相对当前文件的，JTaro Module会自动根据当前文件查找目标文件
+- 所有import的路径都是相对当前文件的，除非使用`rollup-plugin-paths`插件，JTaro Module会自动根据当前文件查找目标文件
 - a.js引入b.js，b.js引入a.js这类循环引入不会重复加载，但代码可能不会按预期的那样执行
 - import/export必须独立成行，即同一行不能出现两个import/export
 - import的文件必须加后缀，目前只支持js/html/css三种后缀文件
@@ -229,7 +229,7 @@ export default { a: 1 }
 
 ## rollup-plugin-jtaro-module
 
-[rollup-plugin-jtaro-module](https://github.com/chjtx/rollup-plugin-jtaro-module) Rollup的JTaro Module插件，使Rollup支持引入html和css
+[rollup-plugin-jtaro-module](https://github.com/chjtx/rollup-plugin-jtaro-module) Rollup的JTaro Module插件，使Rollup支持引入html和css，上线打包时使用
 
 | 选项 | 默认值 | 说明 |
 |:----:|:----:|:----|
@@ -240,20 +240,45 @@ export default { a: 1 }
 - 与 JTaro Module 源码`server.js`同一目录创建`jtaro.module.config.js`文件
 - 或者在开启服务时指定配置文件`node server.js --config=./jtaro.other.config.js`
 - `--config`选项后面跟的路径是相对`server.js`的，请用`./`或`../`开头
-- 配置该文件后，即可使用rollup的插件对文件进行处理，如使用`rollup-plugin-alias`进行别名修改，`rollup-plugin-babel`进行ES6语法转换等
+- 配置该文件后，即可使用rollup的插件对文件进行处理，如使用`rollup-plugin-paths`进行别名修改，`rollup-plugin-babel`进行ES6语法转换等
+
+目前已测试通过的rollup插件：
+
+- [rollup-plugin-paths](https://github.com/chjtx/rollup-plugin-paths) 可在不同目录层级下使用相同变量的路径
+- [rollup-plugin-babel](https://github.com/rollup/rollup-plugin-babel) 将ES6语法转换成ES5
+
+```
+npm i -D rollup-plugin-paths rollup-plugin-babel babel-preset-es2015
+```
 
 ```js
 // jtaro.module.config.js
-var alias = require('rollup-plugin-alias')
+var alias = require('rollup-plugin-paths')
+var babel = require('rollup-plugin-babel')
 
 module.exports = {
   website: '../', // 站点目录，以server.js所在路径为基准
   entry: '../demos/main.js', // 入口文件，以server.js所在路径为基准
   plugins: [alias({
     jquery: './vendors/jquery-2.2.3.min.js' // 以入口文件所在路径为基准
+  }, babel({
+    include: '**/a.js',
+    'presets': [
+      [
+        'es2015',
+        {
+          'modules': false
+        }
+      ]
+    ]
   })]
 }
 ```
+
+**注意**
+
+- 若要使用`rollup-plugin-babel`必须安装`babel-preset-es2015`
+- 强烈建议配置babel的`include`选项，否则每个js都会被编译，非常慢
 
 ## 参考
 
@@ -263,7 +288,7 @@ module.exports = {
 
 ## 后语
 
-JTaro Module只能用于解决js/html/css的模块化，对于引入es6/typescript/less/sass/postCss等可谓是爱莫能及，与webpack相比，简直是弱到爆。JTaro Module之所以存在，是因为webpack太过于强大，以至新手根本无法接近，随便抛一个错误足可让我等渣渣通宵达旦。JTaro Module每个文件都与真实文件对应，所有浏览器可捕捉的错误都显而易见，也许错误行号与原文件对不上，`ctrl/cmd + f`搜索一下就很轻易搜到错误源头。webpack是把牛刀，JTaro Module只是用来削水果的，合不合用就要使用者们自己度量了。
+JTaro Module只能用于解决js/html/css的模块化，与webpack相比，简直是弱到爆。JTaro Module之所以存在，是因为webpack太过于强大，以至新手根本无法接近，随便抛一个错误足可让我等渣渣通宵达旦。JTaro Module每个文件都与真实文件对应，所有浏览器可捕捉的错误都显而易见，也许错误行号与原文件对不上，`ctrl/cmd + f`搜索一下就很轻易搜到错误源头。webpack是把牛刀，JTaro Module只是用来削水果的，合不合用就要使用者们自己度量了。
 
 那么为什么要造轮子？
 

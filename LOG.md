@@ -1,6 +1,6 @@
 # 日志
 
-## v0.2.0 ()
+## v0.2.0 (2017-03-24)
 
 - 支持rollup插件，目前已支持`rollup-plugin-paths`和`rollup-plugin-babel`
 

@@ -1,7 +1,7 @@
 var rollup = require('rollup')
 var path = require('path')
 var jtaroModule = require('rollup-plugin-jtaro-module')
-var alias = require('./rollup-plugin-paths.js')
+var alias = require('rollup-plugin-paths')
 var babel = require('rollup-plugin-babel')
 
 rollup.rollup({
@@ -10,7 +10,8 @@ rollup.rollup({
   plugins: [
     jtaroModule({ root: 'demos' }),
     alias({
-      jquery: './vendors/jquery-2.2.3.min.js', // 以入口文件所在路径为基准
+      'vendors@': './vendors/',
+      jquery: 'vendors@jquery-2.2.3.min.js', // 以入口文件所在路径为基准
       fruits: './fruits.js',
       a: './letter/a.js'
     }), babel({
