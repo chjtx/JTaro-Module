@@ -1,5 +1,9 @@
 # 日志
 
+## v0.2.1 (2017-03-29)
+
+- client.js/server.js/parse.js各子文件版本号修改为与大版本号一致
+
 ## v0.2.0 (2017-03-24)
 
 - 支持rollup插件，目前已支持`rollup-plugin-paths`和`rollup-plugin-babel`

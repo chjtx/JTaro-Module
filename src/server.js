@@ -1,4 +1,4 @@
-/*! JTaro-Module server.js v0.0.4 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module server.js v0.2.1 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 var fs = require('fs')
 var path = require('path')
 var http = require('http')
@@ -9,9 +9,8 @@ var configPath = './jtaro.module.config' // 默认配置文件
 
 // 截取命令
 for (var i = 2; i < process.argv.length; i++) {
-  console.log(process.argv)
   // 端口
-  if (typeof process.argv[i] === 'number') {
+  if (/\d/g.test(process.argv[i])) {
     port = process.argv[i]
   }
   // 配置文件 --config="jtaro.module.config.js"
