@@ -139,8 +139,10 @@ a.html
 h1 {font-size:32px;}
 {background: #ddd;} /* 给顶层div加样式 */
 this {background: #ddd;} /* 给顶层div加样式，防止编辑器发出警告 */
+this.abc {color: #333;}
+this#efg {float: left;}
 </style>
-<div>
+<div class="abc" id="efg">
   <h1>Hello JTaro Module</h1>
 </div>
 ```
@@ -160,10 +162,12 @@ document.body.innerHTML = a
     <style id="jtaro_style_a">
     [jtaro_a] h1 {font-size:32px;}
     [jtaro_a] {background: #ddd;}
+    [jtaro_a].abc {color: #333;}
+    [jtaro_a]#efg {float: left;}
     </style>
   </head>
   <body>
-    <div jtaro_a>
+    <div jtaro_a class="abc" id="efg">
       <h1>Hello JTaro Module</h1>
     </div>
   </body>
