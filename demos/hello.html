@@ -1,7 +1,42 @@
 <style>
-this {font-size: 18px;}
-this#hello {background: green;}
-h1 {color: #c23531; text-align: center;}
+    this {
+        font-size: 18px;
+    }
+    
+    this#hello {
+        background: green;
+    }
+    
+    h1, h2 {
+        color: #c23531;
+        text-align: center;
+        background: rgba(0, 0, 0, .3);
+    }
+
+    @media screen and (max-width: 300px) {
+        h1 {
+            background-color:lightblue;
+        }
+    }
+    
+    @keyframes j-loader {
+        0%,
+        100% {
+            transform: rotateZ(0deg)
+        }
+        91.66% {
+            transform: rotateZ(-30deg)
+        }
+    }
+
+    @keyframes x-loader {
+        from {
+            transform: rotateZ(0deg)
+        }
+        to {
+            transform: rotateZ(-30deg)
+        }
+    }
 </style>
 <div id="hello">
     <h1>Hello JTaro Module !!!</h1>

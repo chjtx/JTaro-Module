@@ -1,4 +1,4 @@
-/*! JTaro-Module client.js v0.2.2 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module client.js v0.2.3 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global XMLHttpRequest */
 /**
  * 保证先执行依赖文件的实现思路
@@ -184,14 +184,28 @@
         if (styleText) {
           style = document.getElementById('jtaro_style' + id)
           if (!style) {
-            css = '\n[jtaro' + id + '] ' + styleText[1].replace(/\bthis\b/, '').trim()
-              .replace(/}\s+(?!$)/g, '}\n[jtaro' + id + '] ')
+            // 去掉前后空格
+            css = styleText[1].trim()
+              // 以.#[*和字母开头的选择器前面加上jtaro标识
+              .replace(/(^|{|})\s*([.#a-zA-Z\[*][^{}]+)?{/g, function (match, m1, m2) {
+                var selector = (m2 || '').trim()
+                // from和to是@keyframes的关键词，不能替换
+                if (selector === 'from' || selector === 'to') {
+                  return match
+                }
+                return (m1 || '') + '\n[jtaro' + id + '] ' + selector + ' {'
+              })
+              // 将属性的逗号用<mark>保存，避免下一步误操作，例：background: rgba(0, 0, 0, .3);
               .replace(/:[^;}]+(;|\})/g, function (match) {
                 return match.replace(/,/g, '<mark>')
               })
-              .split(/,\s+/).join(',\n[jtaro' + id + '] ')
+              // 拆分用逗号分隔的选择符并加上jtaro标识，例：h1, h2, h3 {}
+              .split(/,\s+(?=[.#a-zA-Z\[*])/).join(',\n[jtaro' + id + '] ')
+              // 还原<mark>
               .replace(/<mark>/g, ',')
-              .replace(/\s+this/g, '') + '\n'
+              // 去掉this
+              .replace(/\s+this(?=\s+)?/g, '') + '\n'
+
             style = document.createElement('style')
             style.id = 'jtaro_style' + id
             style.innerHTML = css
