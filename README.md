@@ -27,7 +27,7 @@ JTaro Module是一款使用ES6模块语法的前端模块管理工具，其本�
 ### 开发模式
 
 1. 安装`npm install -D jtaro-module`
-2. 在自己的项目目录里使用命名行（终端）运行`node node_modules/jtaro-module/src/server.js`，开启本地静态文件服务，默认为3000端口，可自定义端口`node node_modules/jtaro-module/src/server.js 3030`
+2. 在自己的项目目录里使用命令行（终端）运行`node node_modules/jtaro-module/src/server.js`，开启本地静态文件服务，默认为3000端口，可自定义端口`node node_modules/jtaro-module/src/server.js 3030`
 3. 在index.html的head引入`node_modules/jtaro-module/src/client.js`，在body最后引入入口文件（只要是js文件都可当作入口文件），JTaro Module将会从入口文件开始加载所有依赖文件
 4. 在浏览器上运行`localhost:3000/index.html`，所有js文件都会被拦截，所有符合条件的import/export将会被转换
 
