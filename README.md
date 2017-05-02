@@ -266,7 +266,7 @@ module.exports = {
   plugins: [alias({
     jquery: './vendors/jquery-2.2.3.min.js' // 以入口文件所在路径为基准
   }, babel({
-    include: '**/a.js',
+    include: '**/a.js', //该路径相对于entry（入口文件）
     'presets': [
       [
         'es2015',
