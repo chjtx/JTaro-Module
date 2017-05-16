@@ -178,6 +178,8 @@ document.body.innerHTML = a
 
 直接将css文件的内容以style标签的形式在head创建，不会额外加任何标记
 
+>tips：创建局部样式请在html文件里使用style，创建全局样式，请使用css文件
+
 ## 注意事项
 
 - 目前只在chrome浏览器通过测试，而且将来也不太可能会去兼容其它浏览器。是的，没看错，对非chrome浏览器不做兼容。上线部署的时候将会移除几乎所有JTaro Module的代码，因此，只需要保证在chrome浏览器上开发不出问题就够了
