@@ -1,10 +1,10 @@
 {
   "name": "jtaro-module",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Explain the ES6 module to Es5 syntax",
   "main": "index.js",
   "scripts": {
-    "default": "node src/server.js",
+    "default": "node src/server.js 3001",
     "config": "node src/server.js --config=./jtaro.module.config2.js",
     "build": "node build.js"
   },

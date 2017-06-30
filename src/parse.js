@@ -118,14 +118,14 @@ function joinImports (exports) {
   if (!exports.length) {
     return ''
   }
-  var s = ', [\n    '
+  var s = ', ['
   exports.forEach((item, index) => {
     s += 'JTaroModules[\'' + item.name + '\']' + item.variable
     if (index !== exports.length - 1) {
-      s += ',\n    '
+      s += ', '
     }
   })
-  return s + '\n  ]'
+  return s + ']'
 }
 
 function joinVariables (exports) {
@@ -140,15 +140,17 @@ function joinVariables (exports) {
 }
 
 function mixHeader (loaders, name) {
-  return '(function (f) {\n  JTaroAssets[\'' + name + '\'] = 1\n' +
-    '  var g = function () { f.apply(null' + joinImports(loaders.exports) + ')}\n  ' +
-    loaders.imports.join('\n  ') +
-    '\n})(function (' + joinVariables(loaders.exports) + ') {\n\n'
+  return '(function (f) {JTaroAssets[\'' + name + '\'] = 1;' +
+    'var g = function () { f.apply(null' + joinImports(loaders.exports) + ')};' +
+    loaders.imports.join(';') +
+    '})(function (' + joinVariables(loaders.exports) + ') {\n'
 }
 
-function removeImport (a, f) {
+function removeImport (a, f, h) { // (imports, file, header)
+  var t
   for (var i = 0, l = a.length; i < l; i++) {
-    f = f.replace(new RegExp(a[i].replace('*', '\\*') + '([\r\n]+|$)'), '')
+    t = i === l - 1 ? h : '\n'
+    f = f.replace(new RegExp(a[i].replace('*', '\\*') + '(\n|\r\n|$)'), '/* ' + a[i] + ' */' + t)
   }
   return f
 }
@@ -259,7 +261,7 @@ module.exports = function (file, name, config) {
     // 头部
     header = mixHeader(loaders, name)
     // 去掉已转换的import
-    file = header + removeImport(imports, file) + '\n})'
+    file = removeImport(imports, file, header) + '\n})'
   }
 
   // 提取export
