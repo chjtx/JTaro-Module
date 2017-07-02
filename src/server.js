@@ -1,4 +1,4 @@
-/*! JTaro-Module server.js v0.2.5 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module server.js v0.2.6 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 var fs = require('fs')
 var path = require('path')
 var http = require('http')
@@ -6,6 +6,7 @@ var url = require('url')
 var jtaroModule = require('./parse')
 var port = 3000 // 默认端口
 var configPath = './jtaro.module.config' // 默认配置文件
+var hasConfigFile = false
 
 // 截取命令
 for (var i = 2; i < process.argv.length; i++) {
@@ -15,7 +16,9 @@ for (var i = 2; i < process.argv.length; i++) {
   }
   // 配置文件 --config="jtaro.module.config.js"
   if (/^--config=/.test(process.argv[i])) {
-    configPath = process.argv[i].replace('--config=', '').replace(/^("|')|("|')$/g, '').trim()
+    hasConfigFile = true
+    configPath = process.argv[i].replace('--config=', '')
+      .replace(/^("|')|("|')$/g, '').trim().replace(/\.js$/, '')
 
     // 如果不是以../或./开头的文件，自动加上./
     if (!/^(\.\/|\.\.\/)/.test(configPath)) {
@@ -29,6 +32,8 @@ var config = {}
 fs.access(path.join(__dirname, configPath + '.js'), function (err) {
   if (!err) {
     config = require(configPath)
+  } else if (hasConfigFile) {
+    throw err
   }
   runServer()
 })
