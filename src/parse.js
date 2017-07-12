@@ -1,4 +1,4 @@
-/*! JTaro-Module parse.js v0.2.6 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module parse.js v0.2.7 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /**
  * JTaro Module
  * 将含以下规则的import/export解释成ES5可执行代码
@@ -146,7 +146,7 @@ function mixHeader (loaders, name) {
     '})(function (' + joinVariables(loaders.exports) + ') {\n'
 }
 
-function removeImport (a, f, h) { // (imports, file, header)
+function nodeImport (a, f, h) { // (imports, file, header)
   var t
   for (var i = 0, l = a.length; i < l; i++) {
     t = i === l - 1 ? h : '\n'
@@ -260,14 +260,19 @@ module.exports = function (file, name, config) {
     loaders = parseImport(imports, name, plgs)
     // 头部
     header = mixHeader(loaders, name)
-    // 去掉已转换的import
-    file = removeImport(imports, file, header) + '\n})'
+    // 注释已转换的import
+    file = nodeImport(imports, file, header) + '\n})'
   }
 
   // 提取export
   var exports = getExports(copy)
 
   if (exports) {
+    // 只有export没有import也需要使用闭包
+    if (!imports) {
+      file = '!function(){' + file + '\n}()'
+    }
+
     exportMaps = getExportMaps(exports, name)
     exportMaps.forEach((item, index) => {
       if (index === 0) {
