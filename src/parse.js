@@ -1,4 +1,4 @@
-/*! JTaro-Module parse.js v0.2.7 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module parse.js v0.2.8 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /**
  * JTaro Module
  * 将含以下规则的import/export解释成ES5可执行代码
@@ -73,7 +73,7 @@ function parseImport (arr, name, plugins) {
       temp = regBracket.exec(arr[i])
       variables = temp[1].trim().split(/ *, */)
       variables.forEach(i => {
-        var a = i.split(/ +as +/)
+        var a = i.split(/ +\bas\b +/)
         varArr.push({
           alias: a[1] || a[0],
           name: resolvePath(resolveId(temp[2]), name),
@@ -159,7 +159,7 @@ function parseBracket (v, name) {
   var a = v.split(/ *, */)
   var str = ''
   a.forEach((item, index) => {
-    var b = item.split(/ *as */)
+    var b = item.split(/ *\bas\b */)
     if (b[1]) {
       str += 'JTaroModules[\'' + name + '\'].' + b[1] + ' = ' + b[0]
     } else {
