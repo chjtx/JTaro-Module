@@ -6,5 +6,9 @@ var banana = 'Banana'
 
 console.log(a)
 
-export { apple, banana }
+export {
+  apple,
+  banana,
+  a
+}
 export var orange = 'Orange'

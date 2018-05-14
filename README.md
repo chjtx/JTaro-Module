@@ -34,6 +34,8 @@ JTaro Tutorial：[https://github.com/chjtx/JTaro-Tutorial](https://github.com/ch
 2. 在自己的项目目录里使用命令行（终端）运行`node node_modules/jtaro-module/src/server.js`，开启本地静态文件服务，默认为3000端口，可自定义端口`node node_modules/jtaro-module/src/server.js 3030`
 3. 在index.html的head引入`node_modules/jtaro-module/src/client.js`，在body最后引入入口文件（只要是js文件都可当作入口文件），JTaro Module将会从入口文件开始加载所有依赖文件
 4. 在浏览器上运行`localhost:3000/index.html`，所有js文件都会被拦截，所有符合条件的import/export将会被转换
+5. 监听文件变化自动刷新浏览器`node node_modules/jtaro-module/src/server.js --watch=.`，watch后面参数是以`.`开头的相对路径，相对于当前执行命令的目录，例：`.`、`..`、`./src`，该路径表示要监听的目录。
+6. 若需要监听文件变化自动刷新浏览器，必须自行将客户端的`socket.io.js`在`client.js`之前引入。了解socket.io请看[https://socket.io/docs/](https://socket.io/docs/)
 
 建议使用[Visual Studio Code](https://code.visualstudio.com/)进行开发，可直接在编辑器开启nodejs服务
 
@@ -195,6 +197,8 @@ document.body.innerHTML = a
 - 除以下5种import、5种export语法外的ES6模块语法都不会被解释到，例：不支持`export * from '../abc.js'`
 
 ## 支持import的5种语法
+
+> __注意：__`import`语句必须单独成行
 
 ```js
 // 1、花括号变量

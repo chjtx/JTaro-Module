@@ -1,5 +1,5 @@
-/*! JTaro-Module client.js v0.2.3 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
-/* global XMLHttpRequest */
+/*! JTaro-Module client.js v0.3.0 ~ (c) 2017-2018 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/* global io */
 /**
  * 保证先执行依赖文件的实现思路
  * 1、引入资源时，创建依赖树，节点主要包含的内容有{from, path, callback}
@@ -92,24 +92,13 @@
   }
 
   loader = {
-    // 同步加载
-    ajax: function (path, callback) {
-      var xhr = new XMLHttpRequest()
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-          callback(xhr.responseText)
-        }
-      }
-      xhr.open('GET', path, true)
-      xhr.send()
-    },
     // 路径处理
     path: {
-      dirname: function (p) {
+      dirname (p) {
         return p.substr(0, p.lastIndexOf('/'))
       },
-      resolve: function (p) {
-        var currentScript = document.currentScript && document.currentScript.src || document.baseURI.split('?')[0].split('#')[0]
+      resolve (p) {
+        var currentScript = (document.currentScript && document.currentScript.src) || document.baseURI.split('?')[0].split('#')[0]
         var d = this.dirname(currentScript)
         var path
 
@@ -135,7 +124,7 @@
       }
     },
     // 判断脚本是否存在
-    isExist: function (path) {
+    isExist (path) {
       var exist
       var scripts = document.getElementsByTagName('script')
       for (var i = 0, l = scripts.length; i < l; i++) {
@@ -146,7 +135,7 @@
       }
       return exist
     },
-    importJs: function (result) {
+    importJs (result) {
       var me = this
       var script = me.isExist(result.path)
       if (!script) {
@@ -168,12 +157,14 @@
       }
     },
     // 将路径转换成id
-    path2id: function (path) {
+    path2id (path) {
       return path.substr(0, path.lastIndexOf('.')).replace(/\//g, '_')
     },
-    importHtml: function (result) {
+    importHtml (result) {
       var me = this
-      this.ajax(result.src, function (data) {
+      window.fetch(result.src).then((res) => {
+        return res.text()
+      }).then(data => {
         var reg = /<style>([\s\S]+)<\/style>/
         var styleText = reg.exec(data)
         var style
@@ -187,7 +178,7 @@
             // 去掉前后空格
             css = styleText[1].trim()
               // 以.#[*和字母开头的选择器前面加上jtaro标识
-              .replace(/(^|{|})\s*([.#a-zA-Z\[*][^{}]+)?{/g, function (match, m1, m2) {
+              .replace(/(^|{|})\s*([.#a-zA-Z[*][^{}]+)?{/g, function (match, m1, m2) {
                 var selector = (m2 || '').trim()
                 // from和to是@keyframes的关键词，不能替换
                 if (selector === 'from' || selector === 'to') {
@@ -200,7 +191,7 @@
                 return match.replace(/,/g, '<mark>')
               })
               // 拆分用逗号分隔的选择符并加上jtaro标识，例：h1, h2, h3 {}
-              .split(/,\s+(?=[.#a-zA-Z\[*])/).join(',\n[jtaro' + id + '] ')
+              .split(/,\s+(?=[.#a-zA-Z[*])/).join(',\n[jtaro' + id + '] ')
               // 还原<mark>
               .replace(/<mark>/g, ',')
               // 去掉this
@@ -228,9 +219,11 @@
         execScript(result)
       })
     },
-    importCss: function (result) {
+    importCss (result) {
       var id = 'jtaro_css' + this.path2id(result.src)
-      this.ajax(result.src, function (data) {
+      window.fetch(result.src).then((res) => {
+        return res.text()
+      }).then(data => {
         var link = document.getElementById(id)
         if (!link) {
           link = document.createElement('style')
@@ -242,7 +235,7 @@
       })
     },
     // 引入模块
-    import: function (path, callback) {
+    'import' (path, callback) {
       var result = this.path.resolve(path)
       var child = {
         src: result.src,
@@ -284,6 +277,12 @@
         console.error('Can only import html/css/js!!! `JTaroLoader.import(\'' + child.src + '\', g)` load fail from ' + child.from)
       }
     }
+  }
+  if (typeof io === 'function') {
+    const socket = io(document.baseURI)
+    socket.on('fileChange', () => {
+      window.location.reload()
+    })
   }
 
   window.JTaroLoader = loader

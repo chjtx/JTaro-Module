@@ -1,6 +1,6 @@
 import 'jquery'
 
-var a = 123
+var a = 123444
 var b = (i) => 1 + i
 console.log(b(1))
 

@@ -1,6 +1,6 @@
 {
   "name": "jtaro-module",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "description": "Explain the ES6 module to Es5 syntax",
   "main": "index.js",
   "scripts": {
@@ -23,12 +23,18 @@
   "homepage": "https://github.com/chjtx/JTaro-Module#readme",
   "devDependencies": {
     "babel-preset-es2015": "^6.24.0",
-    "eslint": "^3.9.1",
-    "eslint-config-vue": "^2.0.0",
-    "eslint-plugin-vue": "^1.0.0",
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.1.0",
     "rollup": "^0.38.0",
     "rollup-plugin-babel": "^2.7.1",
     "rollup-plugin-jtaro-module": "^0.1.0",
     "rollup-plugin-paths": "0.0.1"
+  },
+  "dependencies": {
+    "socket.io": "^2.1.0"
   }
 }

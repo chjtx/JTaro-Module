@@ -1,4 +1,4 @@
-/*! JTaro-Module parse.js v0.2.8 ~ (c) 2017 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module parse.js v0.3.0 ~ (c) 2017-2018 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /**
  * JTaro Module
  * 将含以下规则的import/export解释成ES5可执行代码
@@ -21,7 +21,7 @@ function getImports (text) {
 }
 
 function getExports (text) {
-  return text.match(/^[\t ]*export\s+.*/mg)
+  return text.match(/([\t ]*export +[^{\n\r]+)|([\t ]*export +\{[^}]+\})/g)
 }
 
 function removeComment (text) {
@@ -36,7 +36,7 @@ function resolvePath (p, d) {
     }
     return ''
   })
-  return d + '/' + p
+  return (d + '/' + p).replace(/\\/g, '/')
 }
 
 function parseImport (arr, name, plugins) {
@@ -59,7 +59,7 @@ function parseImport (arr, name, plugins) {
     }
     // 如果b有值，返回从当前文件到指定文件的相对路径
     // return b ? getRelativePath(plugins.id, b) : a
-    return b || a
+    return (b || a).replace(/\\/g, '/')
   }
 
   for (var i = 0, l = arr.length; i < l; i++) {
@@ -109,30 +109,30 @@ function parseImport (arr, name, plugins) {
     }
   }
   return {
-    imports: newArr,
-    exports: varArr
+    imps: newArr,
+    exps: varArr
   }
 }
 
-function joinImports (exports) {
-  if (!exports.length) {
+function joinImports (exps) {
+  if (!exps.length) {
     return ''
   }
   var s = ', ['
-  exports.forEach((item, index) => {
+  exps.forEach((item, index) => {
     s += 'JTaroModules[\'' + item.name + '\']' + item.variable
-    if (index !== exports.length - 1) {
+    if (index !== exps.length - 1) {
       s += ', '
     }
   })
   return s + ']'
 }
 
-function joinVariables (exports) {
+function joinVariables (exps) {
   var s = ''
-  exports.forEach((item, index) => {
+  exps.forEach((item, index) => {
     s += item.alias
-    if (index !== exports.length - 1) {
+    if (index !== exps.length - 1) {
       s += ', '
     }
   })
@@ -141,12 +141,12 @@ function joinVariables (exports) {
 
 function mixHeader (loaders, name) {
   return '(function (f) {JTaroAssets[\'' + name + '\'] = 1;' +
-    'var g = function () { f.apply(null' + joinImports(loaders.exports) + ')};' +
-    loaders.imports.join(';') +
-    '})(function (' + joinVariables(loaders.exports) + ') {\n'
+    'var g = function () { f.apply(null' + joinImports(loaders.exps) + ')};' +
+    loaders.imps.join(';') +
+    '})(function (' + joinVariables(loaders.exps) + ') {\n'
 }
 
-function nodeImport (a, f, h) { // (imports, file, header)
+function nodeImport (a, f, h) { // (imps, file, header)
   var t
   for (var i = 0, l = a.length; i < l; i++) {
     t = i === l - 1 ? h : '\n'
@@ -249,31 +249,31 @@ module.exports = function (file, name, config) {
   // 去掉多行注释的副本
   var copy = removeComment(file)
   // 提取import
-  var imports = getImports(copy)
+  var imps = getImports(copy)
 
   var loaders = []
   var header = ''
   var exportMaps
 
-  if (imports) {
+  if (imps) {
     // 转换成JTaroLoader.import
-    loaders = parseImport(imports, name, plgs)
+    loaders = parseImport(imps, name, plgs)
     // 头部
     header = mixHeader(loaders, name)
     // 注释已转换的import
-    file = nodeImport(imports, file, header) + '\n})'
+    file = nodeImport(imps, file, header) + '\n})'
   }
 
   // 提取export
-  var exports = getExports(copy)
+  var exps = getExports(copy)
 
-  if (exports) {
+  if (exps) {
     // 只有export没有import也需要使用闭包
-    if (!imports) {
+    if (!imps) {
       file = '!function(){' + file + '\n}()'
     }
 
-    exportMaps = getExportMaps(exports, name)
+    exportMaps = getExportMaps(exps, name)
     exportMaps.forEach((item, index) => {
       if (index === 0) {
         file = file.replace(item.source, 'JTaroModules[\'' + name + '\'] = {};' + item.replace)
