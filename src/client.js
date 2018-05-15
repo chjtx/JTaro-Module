@@ -1,4 +1,4 @@
-/*! JTaro-Module client.js v0.3.0 ~ (c) 2017-2018 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module client.js v0.3.2 ~ (c) 2017-2018 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global io */
 /**
  * 保证先执行依赖文件的实现思路
@@ -165,7 +165,7 @@
       window.fetch(result.src).then((res) => {
         return res.text()
       }).then(data => {
-        var reg = /<style>([\s\S]+)<\/style>/
+        var reg = /<style>([\s\S]+)?<\/style>/
         var styleText = reg.exec(data)
         var style
         var css
@@ -174,7 +174,7 @@
         // 将模板的<style>提取到head
         if (styleText) {
           style = document.getElementById('jtaro_style' + id)
-          if (!style) {
+          if (!style && styleText[1]) {
             // 去掉前后空格
             css = styleText[1].trim()
               // 以.#[*和字母开头的选择器前面加上jtaro标识
@@ -208,12 +208,11 @@
 
           // 去除行首空格
           data = data.replace(/^\s+/, '')
-
-          // 标识第一个dom
-          data = data.replace(/^<\w+(?= |>)/, function (match) {
-            return match + ' jtaro' + id + ' '
-          })
         }
+        // 标识第一个dom
+        data = data.replace(/^<\w+(?= |>)/, function (match) {
+          return match + ' jtaro' + id + ' '
+        })
 
         window.JTaroModules[result.src] = { default: data }
         execScript(result)
