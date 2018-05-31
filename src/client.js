@@ -1,4 +1,4 @@
-/*! JTaro-Module client.js v0.3.2 ~ (c) 2017-2018 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
+/*! JTaro-Module client.js v0.3.3 ~ (c) 2017-2018 Author:BarZu Git:https://github.com/chjtx/JTaro-Module/ */
 /* global io */
 /**
  * 保证先执行依赖文件的实现思路
@@ -47,6 +47,7 @@
     var k
     for (i = 0, l = fathers.length; i < l; i++) {
       if (!fathers[i].children) fathers[i].children = []
+      // 匹配来源
       if (fathers[i].path === child.from) {
         hasThisChild = false
         for (k = 0; k < fathers[i].children.length; k++) {
@@ -61,6 +62,24 @@
       }
       if (fathers[i].children && fathers[i].children.length > 0) {
         pushIntoFather(child, fathers[i].children)
+        if (fathers[i].path === child.path) {
+          // 子树已存在该树中
+          findChildFrom(child.path, fathers[i].children, child.path)
+        }
+      }
+    }
+  }
+
+  // 查找是否循环引用
+  function findChildFrom (p, children, childPath) {
+    for (var i = 0, l = children.length; i < l; i++) {
+      if (children[i].path === childPath) {
+        console.error('Can\'t cyclic import! `' + p + ' -> ' + children[i].path + '`')
+        return
+      } else {
+        if (children[i].children && children[i].children.length) {
+          findChildFrom(p + ' -> ' + children[i].path, children[i].children, childPath)
+        }
       }
     }
   }
