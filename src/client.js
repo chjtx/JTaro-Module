@@ -196,6 +196,10 @@
           if (!style && styleText[1]) {
             // 去掉前后空格
             css = styleText[1].trim()
+              // 去掉注释
+              .replace(/\/\*[\s\S]+?\*\//g, '')
+              // 删除空行
+              .replace(/^\s*$/mg, '')
               // 以.#[*和字母开头的选择器前面加上jtaro标识
               .replace(/(^|{|})\s*([.#a-zA-Z[*][^{}]+)?{/g, function (match, m1, m2) {
                 var selector = (m2 || '').trim()
@@ -224,9 +228,12 @@
 
           // 过滤已截取的style
           data = data.replace(styleText[0], '')
-
-          // 去除行首空格
-          data = data.replace(/^\s+/, '')
+            // 去掉注释
+            .replace(/<!--[\s\S]+?-->/g, '')
+            // 去除行首空格
+            .replace(/^\s+/, '')
+            // 删除空行
+            .replace(/^\s*$/mg, '')
         }
         // 标识第一个dom
         data = data.replace(/^<\w+(?= |>)/, function (match) {
