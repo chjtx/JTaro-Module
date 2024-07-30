@@ -72,6 +72,11 @@ function runServer () {
   }
 
   const server = http.createServer((req, res) => {
+    if (path.normalize(decodeURI(req.url)) !== decodeURI(req.url)) {
+        res.statusCode = 403;
+        res.end();
+        return;
+    }
     const parseURL = url.parse(req.url)
     let pathname = parseURL.pathname
     if (/\/$/.test(pathname)) {
